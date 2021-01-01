@@ -1,0 +1,10 @@
+#!/bin/bash
+{{ ansible_managed | comment }}
+
+{% if tmout_timeout >= 600 -%}
+TMOUT={{ tmout_timeout }}
+{% else %}
+TMOUT=500
+{%- endif %}
+readonly TMOUT
+export TMOUT

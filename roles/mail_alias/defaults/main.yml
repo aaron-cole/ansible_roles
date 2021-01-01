@@ -1,0 +1,2 @@
+mail_alias_file: /etc/aliases
+mail_alias_root: ~

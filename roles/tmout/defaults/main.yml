@@ -1,0 +1,2 @@
+tmout_timeout: 600
+tmout_file: /etc/profile.d/tmout.sh

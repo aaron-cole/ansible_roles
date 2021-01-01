@@ -1,0 +1,5 @@
+postfix_settings_main_file: /etc/postfix/main.cf
+postfix_settings_relay_host: ~
+postfix_settings_client_restrictions: permit_mynetworks,reject
+postfix_settings_backup_file: ~
+postfix_settings_mydomain: ~

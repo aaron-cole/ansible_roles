@@ -1,0 +1,26 @@
+#RHEL 8 tools are different
+- import_tasks: redhat8.yml
+  when:
+    - ansible_facts['distribution'] == "RedHat"
+    - ansible_facts['distribution_major_version'] == "8"
+
+#RHEL 6/7 tools are different
+- import_tasks: redhat.yml
+  when:
+    - ansible_facts['distribution'] == "RedHat"
+    - ansible_facts['distribution_major_version'] <= "7"
+
+#Selinux state
+- name: Set selinux state
+  selinux: 
+    policy: "{{ selinux_policy }}"
+    state: "{{ selinux_state }}"
+    conf: "{{ selinux_config_file }}"
+
+#Selinux config file
+- name: Selinux config file
+  file:
+    name: "{{ selinux_config_file }}" 
+    owner: root
+    group: root
+    mode: 0644

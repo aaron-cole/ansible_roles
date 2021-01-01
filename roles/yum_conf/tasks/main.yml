@@ -1,0 +1,14 @@
+- name: Ensure yum.conf settings
+  lineinfile:
+    path: "{{ yum_conf_file }}"
+    owner: root
+    group: root
+    mode: 0644
+    state: present
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - { regexp: '^#?localpkg_gpgcheck=', line: 'localpkg_gpgcheck={{ yum_conf_local_gpg_check }}' }
+    - { regexp: '^#?gpgcheck=', line: 'gpgcheck={{ yum_conf_gpg_check }}' }
+    - { regexp: '^#?clean_requirements_on_remove=', line: 'clean_requirements_on_remove={{ yum_conf_clean_requirements }}' }
+    

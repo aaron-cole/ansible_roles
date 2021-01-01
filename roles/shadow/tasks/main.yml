@@ -1,0 +1,39 @@
+- name: shadow | related files and permissions 
+  file:
+    path: "{{ item.path }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+  with_items:
+    - { path: "/etc/shadow", owner: "root", group: "root", mode: "0000" }
+    - { path: "/etc/gshadow", owner: "root", group: "root", mode: "0000" }
+    - { path: "/etc/passwd", owner: "root", group: "root", mode: "0644" }
+    - { path: "/etc/group", owner: "root", group: "root", mode: "0644" }
+
+- name: shadow | /etc/login.defs
+  template:
+    src: login.defs.j2
+    backup: "{{ shadow_file_backup }}"
+    dest: /etc/login.defs
+    owner: root
+    group: root
+    mode: 0644
+
+- name: shadow | /etc/libuser.conf
+  lineinfile:
+    path: /etc/libuser.conf
+    backup: "{{ shadow_file_backup }}"
+    regexp: '^#?crypt_style='
+    line: "crypt_style = {{ shadow_libuser_crypt_style_setting }}"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: shadow | /etc/default/useradd
+  template:
+    src: useradd.j2
+    backup: "{{ shadow_file_backup }}"
+    dest: /etc/default/useradd
+    owner: root
+    group: root
+    mode: 0600

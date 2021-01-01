@@ -1,0 +1,18 @@
+- name: chrony Installation 
+  include_tasks: "{{ ansible_os_family|lower }}.yml"
+
+- name: chrony configuration file
+  template:
+    src: chrony.conf.j2
+    dest: "{{ chrony_config_file }}"
+    owner: root
+    group: root
+    mode: "{{ chrony_config_mode }}"
+  notify:
+    - Restart chrony service
+
+- name: Manage Chrony service
+  service:
+    name: "{{ chrony_svc }}"
+    state: "{{ chrony_svc_state }}"
+    enabled: "{{ chrony_svc_enabled }}"

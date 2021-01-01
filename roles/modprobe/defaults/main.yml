@@ -1,0 +1,2 @@
+modprobe_blacklist_file: /etc/modprobe.d/blacklist-ansible.conf
+modprobe_blacklist_modules: usb-storage dccp

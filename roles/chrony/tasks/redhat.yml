@@ -1,0 +1,19 @@
+- name: Install Chrony
+  package:
+    name: "{{ chrony_package }}"
+    state: "{{ chrony_pkg_state }}"
+
+#- name: Check is ntpd service exists
+#  stat: path="/usr/lib/systemd/system/ntpd.service"
+#  register: ntpd_service_status
+#
+#- name: Stop and mask ntpd service
+#  systemd: 
+#    name: ntpd
+#    state: stopped
+#    mask: yes
+#
+#- name: Remove ntpd
+#  package:
+#    name: ntpd
+#    state: absent

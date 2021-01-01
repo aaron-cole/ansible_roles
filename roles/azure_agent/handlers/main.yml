@@ -1,0 +1,5 @@
+# Handlers for azure_agent
+- name: Restart Azure Agent service
+  service:
+    state: restarted
+    name: "{{ azure_agent_service }}"

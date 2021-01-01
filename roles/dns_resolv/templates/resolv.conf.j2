@@ -1,0 +1,17 @@
+{{ ansible_managed | comment }}
+
+{% if dns_resolv_domain | length > 0 -%}
+domain {{ dns_resolv_domain }}
+{% endif %}
+{% for server in dns_resolv_nameservers -%}
+nameserver {{ server }}
+{% endfor %}
+{% if dns_resolv_search | length > 0 -%}
+search {{ dns_resolv_search }}
+{% endif %}
+{% if dns_resolv_sortlist | length > 0 -%}
+sortlist {{ dns_resolv_sortlist | join(" ") }}
+{% endif %}
+{% if dns_resolv_options | length > 0 -%}
+options {{ dns_resolv_options | join(" ") }}
+{% endif %}

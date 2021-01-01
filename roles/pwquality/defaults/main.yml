@@ -1,0 +1,16 @@
+pwquality_package_name: libpwquality
+pwquality_config_file_name: /etc/security/pwquality.conf
+pwquality_difok: "8"
+pwquality_minlen: "16"
+pwquality_dcredit: "-2"
+pwquality_ucredit: "-2"
+pwquality_lcredit: "-2"
+pwquality_ocredit: "-2"
+pwquality_minclass: "4"
+pwquality_maxrepeat: "3"
+pwquality_maxclassrepeat: "4"
+pwquality_gecoscheck: ""
+pwquality_dictcheck: "1"
+pwquality_usercheck: "1"
+pwquality_enforcing: ""
+pwquality_dictpath: ""

@@ -1,0 +1,26 @@
+#Backup files before changing
+shadow_file_backup: yes
+
+#/etc/libuser.conf settings
+shadow_libuser_crypt_style_setting: sha512
+
+#/etc/default/useradd settings
+shadow_useradd_group: 100
+shadow_useradd_home: /home
+shadow_useradd_inactive: 0
+shadow_useradd_expire: -1
+shadow_useradd_shell: /bin/bash
+shadow_useradd_skel: /etc/skel
+shadow_useradd_create_mail_spool: yes
+
+#/etc/login.defs settings
+shadow_login_defs_mail_dir: /var/spool/mail
+shadow_login_defs_pass_max_days: 60
+shadow_login_defs_pass_min_days: 1
+shadow_login_defs_pass_min_length: 15
+shadow_login_defs_pass_warn_age: 7
+shadow_login_defs_create_home: yes
+shadow_login_defs_umask: 077
+shadow_login_defs_usergroups_enab: yes
+shadow_logins_defs_encrypt_method: SHA512
+shadow_logins_defs_fail_delay: 4

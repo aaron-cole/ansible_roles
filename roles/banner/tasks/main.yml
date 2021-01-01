@@ -1,0 +1,8 @@
+- name: Set /etc/issue
+  template:
+    src: banner.j2
+    dest: /etc/issue
+    mode: 0644
+    owner: root
+    group: root
+

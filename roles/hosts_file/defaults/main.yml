@@ -1,0 +1,3 @@
+hosts_file_file: /etc/hosts
+hosts_file_ipv4_loopback: localhost.localdomain   localhost localhost4 localhost4.localdomain4
+hosts_file_ipv6_loopback: localhost6.localdomain6 localhost localhost6

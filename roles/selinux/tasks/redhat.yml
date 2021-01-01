@@ -1,0 +1,5 @@
+#RHEL 6/7 tools are different
+- name: selinux install tools RHEL7 and below
+  package: 
+    name: policycoreutils-python
+    state: "{{ selinux_package_state }}"

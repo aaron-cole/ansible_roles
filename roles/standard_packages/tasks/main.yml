@@ -1,0 +1,5 @@
+- name: Install Standardized OS Software
+  package: 
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ standard_packages_rhel }}"

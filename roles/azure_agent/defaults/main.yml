@@ -1,0 +1,37 @@
+#Azure Package and service configs
+azure_agent_package: WALinuxAgent
+azure_agent_package_status: absent
+azure_agent_service: waagent
+azure_agent_service_state: started
+azure_agent_service_enable: yes
+azure_agent_conf_file: /etc/waagent.conf
+
+#Azure Config file defaults
+azure_agent_role_stateconsumer: None
+azure_agent_role_configurationconsumer: None
+azure_agent_role_topologyconsumer: None
+azure_agent_provisioning_enabled: n
+azure_agent_provisioning_deleterootpassword: n
+azure_agent_provisioning_regeneratesshhostkeypair: n
+azure_agent_provisioning_sshhostkeypairtype: rsa
+azure_agent_provisioning_monitorhostname: y
+azure_agent_provisioning_decodecustomdata: n
+azure_agent_provisioning_executecustomdata: n
+#azure_agent_provisioning_passwordcryptid: 
+#azure_agent_provisioning_passwordcryptsaltlength: 
+azure_agent_resourcedisk_format: n
+azure_agent_resourcedisk_filesystem: ext4
+azure_agent_resourcedisk_mountpoint: /mnt/resource
+azure_agent_resourcedisk_enableswap: n
+azure_agent_resourcedisk_swapsizemb: 0
+azure_agent_lbproberesponder: y
+azure_agent_logs_file: /var/log/waagent.log
+azure_agent_logs_console: y
+azure_agent_logs_verbose: n
+#azure_agent_network_interface:
+azure_agent_os_rootdevicescsitimeout: 300
+azure_agent_os_opensslpath: None
+#azure_agent_httpproxy_host:
+#azure_agent_httpproxy_port: 
+azure_agent_extensions_enabled: y
+

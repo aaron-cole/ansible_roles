@@ -1,0 +1,11 @@
+dns_resolv_become: true
+dns_resolv_become_user: true
+dns_resolv_nameservers:
+  - 8.8.8.8
+  - 1.1.1.1
+  - 8.8.4.4
+dns_resolv_file: /etc/resolv.conf
+dns_resolv_domain: ''
+dns_resolv_search: []
+dns_resolv_sortlist: []
+dns_resolv_options: []

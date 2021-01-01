@@ -1,0 +1,113 @@
+{{ ansible_managed | comment }}
+#
+# Windows Azure Linux Agent Configuration
+#
+
+# Specified program is invoked with the argument "Ready" when we report ready status
+# to the endpoint server.
+Role.StateConsumer={{ azure_agent_role_stateconsumer }}
+
+# Specified program is invoked with XML file argument specifying role
+#  configuration.
+Role.ConfigurationConsumer={{ azure_agent_role_configurationconsumer }}
+
+# Specified program is invoked with XML file argument specifying role topology.
+Role.TopologyConsumer={{ azure_agent_role_topologyconsumer }}
+
+# Enable instance creation
+#Provisioning.Enabled=y
+Provisioning.Enabled={{ azure_agent_provisioning_enabled }}
+
+# Password authentication for root account will be unavailable.
+#Provisioning.DeleteRootPassword=y
+Provisioning.DeleteRootPassword={{ azure_agent_provisioning_deleterootpassword }}
+
+# Generate fresh host key pair.
+#Provisioning.RegenerateSshHostKeyPair=y
+Provisioning.RegenerateSshHostKeyPair={{ azure_agent_provisioning_regeneratesshhostkeypair }}
+
+# Supported values are "rsa", "dsa" and "ecdsa".
+Provisioning.SshHostKeyPairType={{ azure_agent_provisioning_sshhostkeypairtype }}
+
+# Monitor host name changes and publish changes via DHCP requests.
+Provisioning.MonitorHostName={{ azure_agent_provisioning_monitorhostname }}
+
+# Decode CustomData from Base64.
+Provisioning.DecodeCustomData={{ azure_agent_provisioning_decodecustomdata }}
+
+# Execute CustomData after provisioning.
+Provisioning.ExecuteCustomData={{ azure_agent_provisioning_executecustomdata }}
+
+# Algorithm used by crypt when generating password hash.
+{% if azure_agent_provisioning_passwordcryptid is defined -%}
+Provisioning.PasswordCryptId={{ azure_agent_provisioning_passwordcryptid }}
+{% else %}
+#Provisioning.PasswordCryptId=6
+{% endif %}
+
+# Length of random salt used when generating password hash.
+{% if azure_agent_provisioning_passwordcryptsaltlength is defined -%}
+Provisioning.PasswordCryptSaltLength={{ azure_agent_provisioning_passwordcryptsaltlength }}
+{% else %}
+#Provisioning.PasswordCryptSaltLength=10
+{% endif %}
+
+# Format if unformatted. If 'n', resource disk will not be mounted.
+#ResourceDisk.Format=y
+ResourceDisk.Format={{ azure_agent_resourcedisk_format }}
+
+# File system on the resource disk
+# Typically ext3 or ext4. FreeBSD images should use 'ufs2' here.
+ResourceDisk.Filesystem={{ azure_agent_resourcedisk_filesystem }}
+
+# Mount point for the resource disk
+ResourceDisk.MountPoint={{ azure_agent_resourcedisk_mountpoint }}
+
+# Create and use swapfile on resource disk.
+ResourceDisk.EnableSwap={{ azure_agent_resourcedisk_enableswap }}
+
+# Size of the swapfile.
+ResourceDisk.SwapSizeMB={{ azure_agent_resourcedisk_swapsizemb }}
+
+# Respond to load balancer probes if requested by Windows Azure.
+LBProbeResponder={{ azure_agent_lbproberesponder }}
+
+# File to write log to.
+# '/var/log/waagent.log' if not set
+Logs.File={{ azure_agent_logs_file }}
+
+# Enable logging to serial console (y|n)
+# When stdout is not enough...
+# 'y' if not set
+Logs.Console={{ azure_agent_logs_console }}
+
+# Enable verbose logging (y|n)
+Logs.Verbose={{ azure_agent_logs_verbose }}
+
+# Preferred network interface to communicate with Azure platform
+{% if azure_agent_network_interface is defined -%}
+Network.Interface={{ azure_agent_network_interface }}
+{% else %}
+#Network.Interface=eth0
+{% endif %}
+
+# Root device timeout in seconds.
+OS.RootDeviceScsiTimeout={{ azure_agent_os_rootdevicescsitimeout }}
+
+# If "None", the system default version is used.
+OS.OpensslPath={{ azure_agent_os_opensslpath }}
+
+# If set, agent will use proxy server to access internet
+{% if azure_agent_httpproxy_host is defined -%}
+HttpProxy.Host={{ azure_agent_httpproxy_host }}
+{% else %}
+#HttpProxy.Host=None
+{% endif %}
+{% if azure_agent_httpproxy_port is defined -%}
+HttpProxy.Port={{ azure_agent_httpproxy_port }}
+{% else %}
+#HttpProxy.Port=None
+{% endif %}
+
+# Enable Azure Extensions
+Extensions.Enabled={{ azure_agent_extensions_enabled }}

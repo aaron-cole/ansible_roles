@@ -1,0 +1,27 @@
+- name: postfix_settings | Installation
+  package:
+    name: postfix
+    state: present
+
+- name: postfix_settings | configuration
+  lineinfile:
+    path: "{{ postfix_settings_main_file }}"
+    backup: "{{ postfix_settings_backup_file }}"
+    owner: root
+    group: root
+    mode: 0644
+    state: present
+    regexp: "^{{ item.name }} ="
+    line: "{{ item.name }} = {{ item.value }}"
+  with_items:
+    - { name: 'smtpd_client_restrictions', value: "{{ postfix_settings_client_restrictions }}" }
+    - { name: 'mydomain', value: "{{ postfix_settings_mydomain }}" }
+    - { name: 'relayhost', value: "{{ postfix_settings_relay_host }}" }
+  notify:
+    - Restart postfix
+
+- name: postfix_settings | service
+  service:
+    name: postfix
+    state: started
+    enabled: yes

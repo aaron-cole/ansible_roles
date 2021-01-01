@@ -1,0 +1,9 @@
+{{ ansible_managed | comment }}
+# useradd defaults file
+GROUP={{ shadow_useradd_group }}
+HOME={{ shadow_useradd_home }}
+INACTIVE={{ shadow_useradd_inactive }}
+EXPIRE={{ shadow_useradd_expire }}
+SHELL={{ shadow_useradd_shell }}
+SKEL={{ shadow_useradd_skel }}
+CREATE_MAIL_SPOOL={{ shadow_useradd_create_mail_spool }}

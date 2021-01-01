@@ -1,0 +1,5 @@
+# Handlers for chrony
+- name: Restart chrony service
+  service:
+    state: restarted
+    name: "{{ chrony_svc }}"

@@ -1,0 +1,26 @@
+- name: Azure Agent installation
+  package:
+    name: "{{ azure_agent_package }}"
+    state: "{{ azure_agent_package_status }}"
+
+- name: get rpm package facts
+  package_facts:
+    manager: rpm
+
+- name: Azure config file
+  template: 
+    src: waagent.conf.j2
+    dest: "{{ azure_agent_conf_file }}"
+    owner: root
+    group: root
+    mode: 0644
+  when: 'azure_agent_package in ansible_facts.packages'
+  notify:
+    - Restart Azure Agent service
+
+- name: Manage Azure Agent service
+  service:
+    name: "{{ azure_agent_service }}"
+    state: "{{ azure_agent_service_state }}"
+    enabled: "{{ azure_agent_service_enable }}"
+  when: 'azure_agent_package in ansible_facts.packages'

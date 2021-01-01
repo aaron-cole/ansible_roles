@@ -1,0 +1,5 @@
+#yum configurables
+yum_conf_gpg_check: 0
+yum_conf_local_gpg_check: 0
+yum_conf_clean_requirements: 0
+yum_conf_file: /etc/yum.conf

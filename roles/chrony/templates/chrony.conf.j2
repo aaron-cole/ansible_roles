@@ -1,0 +1,86 @@
+{{ ansible_managed | comment }}
+# Use public servers from the pool.ntp.org project.
+# Please consider joining the pool (http://www.pool.ntp.org/join.html).
+#
+{% if chrony_servers is defined -%}
+{% for server in chrony_servers %}
+server {{ server }} {{ chrony_svr_options }}
+{% endfor %}
+{%- endif %}
+
+# Record the rate at which the system clock gains/losses time.
+{% if chrony_driftfile_path is defined -%}
+driftfile {{ chrony_driftfile_path }}
+{% endif %}
+
+# Allow the system clock to be stepped in the first three updates
+# if its offset is larger than 1 second.
+{% if chrony_makestep_args is defined -%}
+makestep {{ chrony_makestep_args }}
+{% endif %}
+
+# Enable kernel synchronization of the real-time clock (RTC).
+{% if chrony_enable_rtcsync -%}
+rtcsync
+{% endif %}
+
+# Enable hardware timestamping on all interfaces that support it.
+{% if chrony_hwtimestamp_interfaces is defined -%}
+hwtimestamp {{ chrony_hwtimestamp_interfaces }}
+{% else %}
+#hwtimestamp *
+{% endif %}
+
+# Increase the minimum number of selectable sources required to adjust
+# the system clock.
+{% if chrony_num_minsources is defined -%}
+minsources {{ chrony_num_minsources }}
+{% else %}
+#minsources 2
+{% endif %}
+
+# Allow NTP client access from local network.
+{% if chrony_ntp_client is defined -%}
+allow {{ chrony_ntp_client }}
+{% else %}
+#allow 192.168.0.0/16
+{% endif %}
+
+# Serve time even if not synchronized to a time source.
+#local stratum 10
+
+# Specify file containing keys for NTP authentication.
+{% if chrony_keyfile_path is defined -%}
+keyfile {{ chrony_keyfile_path }}
+{% endif %}
+
+# Get TAI-UTC offset and leap seconds from the system tz database.
+{% if chrony_leap is defined -%}
+leapsectz {{ chrony_leap }}
+{% endif %}
+
+# Specify directory for log files
+{% if chrony_logdir_path is defined -%}
+logdir {{ chrony_logdir_path }}
+{% endif %}
+
+# Select which information is logged.
+{% if chrony_logged_information is defined -%}
+log {{ chrony_logged_information }}
+{% else %}
+#log measurements statistics tracking
+{% endif %}
+
+#Disable Chrony daemon from acting as server
+{% if chrony_svr_port is defined -%}
+port {{ chrony_svr_port }}
+{% else %}
+port 0
+{% endif %}
+
+#Disable network management of chrony daemon
+{% if chrony_mgmt_port is defined -%}
+cmdport {{ chrony_mgmt_port }}
+{% else %}
+cmdport 0
+{% endif %}

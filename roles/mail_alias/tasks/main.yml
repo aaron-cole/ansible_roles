@@ -1,0 +1,11 @@
+- name: mail_alias | set
+  lineinfile:
+    path: "{{ mail_alias_file }}"
+    owner: root
+    group: root
+    mode: 0644
+    state: present
+    regexp: '^#?root:'
+    line: "root:\t\t{{ mail_alias_root }}"
+  notify:
+    - reload aliases

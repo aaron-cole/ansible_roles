@@ -1,0 +1,4 @@
+- name: selinux install tools RHEL 8 only
+  package: 
+    name: policycoreutils-python-utils
+    state: "{{ selinux_package_state }}"

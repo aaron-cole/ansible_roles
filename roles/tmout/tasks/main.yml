@@ -1,0 +1,7 @@
+- name: tmout settings
+  template:
+    src: tmout.sh.j2
+    dest: "{{ tmout_file }}"
+    owner: root
+    group: root
+    mode: 644

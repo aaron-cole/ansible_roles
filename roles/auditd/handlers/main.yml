@@ -1,0 +1,5 @@
+# Handlers for auditd
+- name: Restart auditd
+  command: /sbin/service auditd restart
+  args:
+    warn: false

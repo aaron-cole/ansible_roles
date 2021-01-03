@@ -1,0 +1,125 @@
+# Package and Service Variables
+auditd_packages: audit audispd-plugins
+auditd_package_state: present
+auditd_service: auditd
+auditd_service_state: started
+auditd_service_enabled: "yes"
+auditd_config_file: /etc/audit/auditd.conf
+
+# Auditd Rules
+auditd_rules_buffer: "8192"
+auditd_rules_failure: "1"
+auditd_rules_backlog_wait_time: "60000"
+auditd_rules_arch: ["32", "64"]
+auditd_rules_setuid_key: execve
+auditd_rules_setgid_key: execve
+auditd_perm_mod_key: ["chown", "fchown", "lchown", "fchownat", "chmod", "fchmod", "fchmodat", "setxattr", "fsetxattr", "lsetxattr", "removexattr", "fremovexattr", "lremovexattr"]
+auditd_access_settings: ["EPERM", "EACCES"]
+auditd_access_key: ["creat", "open", "openat", "open_by_handle_at", "truncate", "ftruncate"]
+auditd_priv_change_key: ["/usr/sbin/semanage", "/usr/sbin/setsebool", "/usr/bin/chcon", "/usr/sbin/setfiles", "/usr/bin/su", "/usr/bin/sudo", "/usr/bin/newgrp", "/usr/bin/chsh"]
+auditd_logins_watch_key: ["/var/run/faillock", "/var/log/lastlog"]
+auditd_privileged_passwd_key: ["/usr/bin/passwd", "/usr/sbin/unix_chkpwd", "/usr/bin/gpasswd", "/usr/bin/chage", "/usr/sbin/userhelper"]
+auditd_privileged_watch_actions_key: ["/etc/sudoers", "/etc/sudoers.d/"]
+auditd_privileged_mount_actions_key: ["mount"]
+auditd_privilged_mount_key: ["/usr/bin/mount", "/bin/umount"]
+auditd_privilged_postfix_key: ["/usr/sbin/postdrop", "/usr/sbin/postqueue"]
+auditd_privilged_ssh_key: ["/usr/libexec/openssh/ssh-keysign"]
+auditd_privilged_cron_key: ["/usr/bin/crontab"]
+auditd_privilged_pam_key: ["/usr/sbin/pam_timestamp_check"]
+auditd_priviliged_module_change_key: ["create_module", "init_module", "finit_module", "delete_module"]
+auditd_priviliged_module_watch_key: ["/usr/bin/kmod"]
+auditd_identity_watch_key: ["/etc/passwd", "/etc/group", "/etc/gshadow", "/etc/shadow", "/etc/security/opasswd"]
+auditd_delete_key:  ["rename", "renameat", "rmdir", "unlink", "unlinkat"]
+
+# Auditd.conf settings
+auditd_conf_local_events: "yes"
+auditd_conf_write_logs: "yes"
+auditd_conf_log_file: /var/log/audit/audit.log
+auditd_conf_log_group: root
+auditd_conf_log_format: RAW
+auditd_conf_flush: INCREMENTAL_ASYNC
+auditd_conf_freq: "50"
+auditd_conf_max_log_file: "8"
+auditd_conf_num_logs: "5"
+auditd_conf_priority_boost: "4"
+auditd_conf_disp_qos: lossy
+auditd_conf_dispatcher: /sbin/audispd
+auditd_conf_name_format: NONE
+auditd_conf_name: ""
+auditd_conf_max_log_file_action: ROTATE
+auditd_conf_space_left: "75"
+auditd_conf_space_left_action: EMAIL
+auditd_conf_verify_email: "yes"
+auditd_conf_action_mail_acct: root
+auditd_conf_admin_space_left: "50"
+auditd_conf_admin_space_left_action: SUSPEND
+auditd_conf_disk_full_action: SUSPEND
+auditd_conf_disk_error_action: SUSPEND
+auditd_conf_use_libwrap: "yes"
+auditd_conf_tcp_listen_port: ""
+auditd_conf_tcp_listen_queue: "5"
+auditd_conf_tcp_max_per_addr: "1"
+auditd_conf_tcp_client_ports: ""
+auditd_conf_tcp_client_max_idle: "0"
+auditd_conf_enable_krb5: "no"
+auditd_conf_krb5_principal: auditd
+auditd_conf_krb5_key_file: ""
+auditd_conf_distribute_network: "no"
+auditd_conf_transport: "TCP"
+auditd_conf_q_depth: "400"
+auditd_conf_overflow_action: SYSLOG
+auditd_conf_max_restarts: "10"
+auditd_conf_plugin_dir: /etc/audit/plugins.d
+
+# Audispd au-remote.conf
+auditd_audispd_au_remote_conf_active: "yes"
+auditd_audispd_au_remote_conf_direction: out
+auditd_audispd_au_remote_conf_path: /sbin/audisp-remote
+auditd_audispd_au_remote_conf_type: always
+auditd_audispd_au_remote_conf_args: ""
+auditd_audispd_au_remote_conf_format: string
+
+# Audispd syslog.conf
+auditd_audispd_syslog_conf_active: "yes"
+auditd_audispd_syslog_conf_direction: out
+auditd_audispd_syslog_conf_path: builtin_syslog
+auditd_audispd_syslog_conf_type: builtin 
+auditd_audispd_syslog_conf_args: LOG_INFO
+auditd_audispd_syslog_conf_format: string
+
+# Audispd audisp-remote.conf
+auditd_audisp_remote_conf_remote_server: ""
+auditd_audisp_remote_conf_port: "60"
+auditd_audisp_remote_conf_local_port: ""
+auditd_audisp_remote_conf_transport: tcp
+auditd_audisp_remote_conf_queue_file: /var/spool/audit/remote.log
+auditd_audisp_remote_conf_mode: immediate
+auditd_audisp_remote_conf_queue_depth: "10240"
+auditd_audisp_remote_conf_format: managed
+auditd_audisp_remote_conf_network_retry_time: "1"
+auditd_audisp_remote_conf_max_tries_per_record: "3"
+auditd_audisp_remote_conf_max_time_per_record: "5"
+auditd_audisp_remote_conf_heartbeat_timeout: "0" 
+auditd_audisp_remote_conf_network_failure_action: syslog
+auditd_audisp_remote_conf_disk_low_action: ignore
+auditd_audisp_remote_conf_disk_full_action: syslog
+auditd_audisp_remote_conf_disk_error_action: warn_once
+auditd_audisp_remote_conf_remote_ending_action: reconnect
+auditd_audisp_remote_conf_generic_error_action: syslog
+auditd_audisp_remote_conf_generic_warning_action: syslog
+auditd_audisp_remote_conf_queue_error_action: stop
+auditd_audisp_remote_conf_overflow_action: syslog
+auditd_audisp_remote_conf_enable_krb5: ""
+auditd_audisp_remote_conf_krb5_principal: ""
+auditd_audisp_remote_conf_krb5_client_name: ""
+auditd_audisp_remote_conf_krb5_key_file: ""
+
+# Audispd audispd.conf
+auditd_audispd_audispd_conf_q_depth: "250"
+auditd_audispd_audispd_conf_overflow_action: SYSLOG
+auditd_audispd_audispd_conf_priority_boost: "4"
+auditd_audispd_audispd_conf_max_restarts: "10"
+auditd_audispd_audispd_conf_name_format: HOSTNAME
+auditd_audispd_audispd_conf_name: ""
+auditd_audispd_audispd_conf_plugin_dir: /etc/audisp/plugins.d/
+

@@ -1,0 +1,14 @@
+{{ ansible_managed | comment }}
+## First rule - delete all
+-D
+
+## Increase the buffers to survive stress events.
+## Make this bigger for busy systems
+-b {{ auditd_rules_buffer }}
+
+## This determine how long to wait in burst of events
+--backlog_wait_time {{ auditd_rules_backlog_wait_time }}
+
+## Set failure mode to syslog
+-f {{ auditd_rules_failure }}
+

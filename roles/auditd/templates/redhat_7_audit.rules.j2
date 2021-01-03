@@ -1,0 +1,150 @@
+{{ ansible_managed | comment }}
+## First rule - delete all
+-D
+
+## Increase the buffers to survive stress events.
+## Make this bigger for busy systems
+-b {{ auditd_rules_buffer }}
+
+## Set failure mode to syslog
+-f {{ auditd_rules_failure }}
+
+#Additional Audit Rules
+
+{% if auditd_rules_setuid_key is defined and auditd_rules_setuid_key | length > 0 -%}
+#SETUID KEY
+{% for arch in auditd_rules_arch %}
+-a always,exit -F arch=b{{ arch }} -S {{ auditd_rules_setuid_key }} -C uid!=euid -F euid=0 -k setuid
+{% endfor %}
+{% endif %}
+
+{% if auditd_rules_setgid_key is defined and auditd_rules_setgid_key | length > 0 -%}
+#SETGID KEY
+{% for arch in auditd_rules_arch %}
+-a always,exit -F arch=b{{ arch }} -S {{ auditd_rules_setgid_key }} -C gid!=egid -F egid=0 -k setgid
+{% endfor %}
+{% endif %}
+
+{% if auditd_perm_mod_key is defined and auditd_perm_mod_key | length > 0 -%}
+#PERM_MOD KEY
+{% for item in auditd_perm_mod_key %}
+{% for arch in auditd_rules_arch %}
+-a always,exit -F arch=b{{ arch }} -S {{ item }} -F auid>=1000 -F auid!=4294967295 -k perm_mod
+{% endfor %}
+{% endfor %}
+{% endif %}
+
+{% if auditd_access_key is defined and auditd_access_key | length > 0 -%}
+#ACCESS KEY
+{% for item in auditd_access_key %}
+{% for setting in auditd_access_settings %}
+{% for arch in auditd_rules_arch %}
+-a always,exit -F arch=b{{ arch }} -S {{ item }} -F exit=-{{ setting }} -F auid>=1000 -F auid!=4294967295 -k access'
+{% endfor %}
+{% endfor %}
+{% endfor %}
+{% endif %}
+
+{% if auditd_priv_change_key is defined and auditd_priv_change_key | length > 0 -%}
+#PRIV_CHANGE KEY
+{% for item in auditd_priv_change_key %}
+-a always,exit -F path={{ item }} -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
+{% endfor %}
+{% endif %}
+
+{% if auditd_logins_watch_key is defined and auditd_logins_watch_key | length > 0 -%}
+#WATCH LOGINS KEY
+{% for item in auditd_logins_watch_key %}
+-w {{ item }} -p wa -k logins 
+{% endfor %}
+{% endif %}
+
+{% if auditd_privileged_passwd_key is defined and auditd_privileged_passwd_key | length > 0 -%}
+#PRIV_PASSWORD KEY
+{% for item in auditd_privileged_passwd_key %}
+-a always,exit -F path={{ item }} -F auid>=1000 -F auid!=4294967295 -k privileged-passwd
+{% endfor %}
+{% endif %}
+
+{% if auditd_privileged_watch_actions_key is defined and auditd_privileged_watch_actions_key | length > 0 -%}
+#privileged-actions KEY
+{% for item in auditd_privileged_watch_actions_key %}
+-w {{ item }} -p wa -k privileged-actions
+{% endfor %}
+{% endif %}
+
+{% if auditd_privileged_mount_actions_key is defined and auditd_privileged_mount_actions_key | length > 0 -%}
+#PRIV MOUNT Action KEY
+{% for item in auditd_privileged_mount_actions_key %}
+{% for arch in auditd_rules_arch %}
+-a always,exit -F arch=b{{ arch }} -S {{ item }} -F auid>=1000 -F auid!=4294967295 -k privileged-mount
+{% endfor %}
+{% endfor %}
+{% endif %}
+
+{% if auditd_privilged_mount_key is defined and auditd_privilged_mount_key | length > 0 -%}
+#PRIV MOUNT KEY
+{% for item in auditd_privilged_mount_key %}
+-a always,exit -F path={{ item }} -F auid>=1000 -F auid!=4294967295 -k privileged-mount
+{% endfor %}
+{% endif %}
+
+{% if auditd_privilged_postfix_key is defined and auditd_privilged_postfix_key | length > 0 -%}
+#PRIV POSTFIX KEY
+{% for item in auditd_privilged_postfix_key %}
+-a always,exit -F path={{ item }} -F auid>=1000 -F auid!=4294967295 -k privileged-postfix
+{% endfor %}
+{% endif %}
+
+{% if auditd_privilged_ssh_key is defined and auditd_privilged_ssh_key | length > 0 -%}
+#PRIV SSH KEY
+{% for item in auditd_privilged_ssh_key %}
+-a always,exit -F path={{ item }} -F auid>=1000 -F auid!=4294967295 -k privileged-ssh
+{% endfor %}
+{% endif %}
+
+{% if auditd_privilged_cron_key is defined and auditd_privilged_cron_key | length > 0 -%}
+#PRIV CRON KEY
+{% for item in auditd_privilged_cron_key %}
+-a always,exit -F path={{ item }} -F auid>=1000 -F auid!=4294967295 -k privileged-cron
+{% endfor %}
+{% endif %}
+
+{% if auditd_privilged_pam_key is defined and auditd_privilged_pam_key | length > 0 -%}
+#PRIV PAM KEY
+{% for item in auditd_privilged_pam_key %}
+-a always,exit -F path={{ item }} -F auid>=1000 -F auid!=4294967295 -k privileged-pam
+{% endfor %}
+{% endif %}
+
+{% if auditd_priviliged_module_change_key is defined and auditd_priviliged_module_change_key | length > 0 -%}
+#PRIV MODULE CHANGE KEY
+{% for item in auditd_priviliged_module_change_key %}
+{% for arch in auditd_rules_arch %}
+-a always,exit -F arch=b{{ arch }} -S {{ item }} -k module-change
+{% endfor %}
+{% endfor %}
+{% endif %}
+
+{% if auditd_priviliged_module_watch_key is defined and auditd_priviliged_module_watch_key | length > 0 -%}
+#PRIV MODULE CHANGE WATCH KEY
+{% for item in auditd_priviliged_module_watch_key %}
+-w {{ item }} -p x -F auid!=4294967295 -k module-change
+{% endfor %}
+{% endif %}
+
+{% if auditd_identity_watch_key is defined and auditd_identity_watch_key | length > 0 -%}
+#PRIV MODULE CHANGE WATCH KEY
+{% for item in auditd_identity_watch_key %}
+-w {{ item }} -p wa -k identity
+{% endfor %}
+{% endif %}
+
+{% if auditd_delete_key is defined and auditd_delete_key | length > 0 -%}
+#PRIV MODULE CHANGE KEY
+{% for item in auditd_delete_key %}
+{% for arch in auditd_rules_arch %}
+-a always,exit -F arch=b{{ arch }} -S {{ item }} -F auid>=1000 -F auid!=4294967295 -k delete
+{% endfor %}
+{% endfor %}
+{% endif %}

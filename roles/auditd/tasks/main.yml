@@ -1,0 +1,55 @@
+# Main Tasks for auditd
+- set_fact:
+    templatevar: "{{ ansible_facts['distribution'] | lower }}_{{ ansible_facts['distribution_major_version'] }}"
+
+# Packages
+- name: auditd | Packages
+  package:
+    name: "{{ item }}"
+    state: "{{ auditd_package_state }}"
+  with_items: "{{ auditd_packages.split(' ') }}"
+
+# Auditd.conf
+- name: auditd | Configuration File
+  template: 
+    src: "{{ templatevar }}_auditd.conf.j2"
+    dest: "{{ auditd_config_file }}"
+    owner: root
+    group: root
+    mode: 0600
+  notify:
+    - Restart auditd
+
+# /etc/audit/audit.rules
+- name: auditd | audit.rules
+  template: 
+    src: "{{ templatevar }}_audit.rules.j2"
+    dest: /etc/audit/rules.d/audit.rules
+    owner: root
+    group: root
+    mode: 0600
+  notify:
+    - Restart auditd
+    
+# Service
+- name: auditd | Service
+  service:
+    name: "{{ auditd_service }}"
+    state: "{{ auditd_service_state }}"
+    enabled: "{{ auditd_service_enabled }}"
+
+# audisp configuration
+- name: auditd | audispd configuration
+  template: 
+    src: "{{ templatevar }}{{item.src}}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: 0640
+  notify:
+    - Restart auditd
+  with_items: 
+    - { src: "_au-remote.conf.j2", dest: "/etc/audisp/plugins.d/au-remote.conf" }
+    - { src: "_audispd.conf.j2", dest: "/etc/audisp/audispd.conf" }
+    - { src: "_audisp_syslog.conf.j2", dest: "/etc/audisp/plugins.d/syslog.conf" }
+    - { src: "_audisp-remote.conf.j2", dest: "/etc/audisp/audisp-remote.conf" }

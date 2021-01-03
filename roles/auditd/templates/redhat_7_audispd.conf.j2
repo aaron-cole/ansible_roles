@@ -1,0 +1,16 @@
+{{ ansible_managed | comment }}
+# This file controls the configuration of the audit event 
+# dispatcher daemon, audispd.
+#
+
+q_depth = {{ auditd_audispd_audispd_conf_q_depth }}
+overflow_action = {{ auditd_audispd_audispd_conf_overflow_action }}
+priority_boost = {{ auditd_audispd_audispd_conf_priority_boost }}
+max_restarts = {{ auditd_audispd_audispd_conf_max_restarts }}
+name_format = {{ auditd_audispd_audispd_conf_name_format }}
+{% if auditd_audispd_audispd_conf_name is defined and auditd_audispd_audispd_conf_name | length > 0 -%}
+name = {{ auditd_audispd_audispd_conf_name }}
+{% else %}
+#name = mydomain
+{% endif %}
+plugin_dir = {{ auditd_audispd_audispd_conf_plugin_dir }}

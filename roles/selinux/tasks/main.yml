@@ -1,24 +1,26 @@
-#RHEL 8 tools are different
-- import_tasks: redhat8.yml
-  when:
-    - ansible_facts['distribution'] == "RedHat"
-    - ansible_facts['distribution_major_version'] == "8"
+- set_fact:
+    selinux_package_name: policycoreutils-python-utils
+  when: (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "8")
 
-#RHEL 6/7 tools are different
-- import_tasks: redhat.yml
-  when:
-    - ansible_facts['distribution'] == "RedHat"
-    - ansible_facts['distribution_major_version'] <= "7"
+- set_fact:
+    selinux_package_name: policycoreutils-python
+  when: (ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] <= "7")
+
+#Install package
+- name: selinux | Installation
+  package: 
+    name: "{{ selinux_package_name }}"
+    state: "{{ selinux_package_state }}"
 
 #Selinux state
-- name: Set selinux state
+- name: selinux | state
   selinux: 
     policy: "{{ selinux_policy }}"
     state: "{{ selinux_state }}"
     conf: "{{ selinux_config_file }}"
 
 #Selinux config file
-- name: Selinux config file
+- name: selinux | config file permissions
   file:
     name: "{{ selinux_config_file }}" 
     owner: root

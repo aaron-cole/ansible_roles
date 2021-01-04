@@ -30,6 +30,7 @@ auditd_priviliged_module_change_key: ["create_module", "init_module", "finit_mod
 auditd_priviliged_module_watch_key: ["/usr/bin/kmod"]
 auditd_identity_watch_key: ["/etc/passwd", "/etc/group", "/etc/gshadow", "/etc/shadow", "/etc/security/opasswd"]
 auditd_delete_key:  ["rename", "renameat", "rmdir", "unlink", "unlinkat"]
+auditd_priviliged_execute_key: ["/usr/bin/chacl", "/usr/sbin/usermod", "/usr/bin/gpasswd", "/usr/bin/setfacl", "/sbin/unix_update", "/usr/bin/passwd", "/usr/bin/ssh-agent", "/usr/bin/chage"]
 
 # Auditd.conf settings
 auditd_conf_local_events: "yes"
@@ -52,9 +53,9 @@ auditd_conf_space_left_action: EMAIL
 auditd_conf_verify_email: "yes"
 auditd_conf_action_mail_acct: root
 auditd_conf_admin_space_left: "50"
-auditd_conf_admin_space_left_action: SUSPEND
-auditd_conf_disk_full_action: SUSPEND
-auditd_conf_disk_error_action: SUSPEND
+auditd_conf_admin_space_left_action: SYSLOG
+auditd_conf_disk_full_action: SYSLOG
+auditd_conf_disk_error_action: SYSLOG
 auditd_conf_use_libwrap: "yes"
 auditd_conf_tcp_listen_port: ""
 auditd_conf_tcp_listen_queue: "5"
@@ -82,8 +83,10 @@ auditd_audispd_au_remote_conf_format: string
 # Audispd syslog.conf
 auditd_audispd_syslog_conf_active: "yes"
 auditd_audispd_syslog_conf_direction: out
-auditd_audispd_syslog_conf_path: builtin_syslog
-auditd_audispd_syslog_conf_type: builtin 
+auditd_audispd_syslog_conf_path_rhel7: builtin_syslog
+auditd_audispd_syslog_conf_path_rhel8: /sbin/audisp-syslog
+auditd_audispd_syslog_conf_type_rhel7: builtin 
+auditd_audispd_syslog_conf_type_rhel8: always
 auditd_audispd_syslog_conf_args: LOG_INFO
 auditd_audispd_syslog_conf_format: string
 
@@ -92,6 +95,7 @@ auditd_audisp_remote_conf_remote_server: ""
 auditd_audisp_remote_conf_port: "60"
 auditd_audisp_remote_conf_local_port: ""
 auditd_audisp_remote_conf_transport: tcp
+auditd_audisp_remote_conf_transport_rhel8: TCP
 auditd_audisp_remote_conf_queue_file: /var/spool/audit/remote.log
 auditd_audisp_remote_conf_mode: immediate
 auditd_audisp_remote_conf_queue_depth: "10240"
@@ -109,6 +113,7 @@ auditd_audisp_remote_conf_generic_error_action: syslog
 auditd_audisp_remote_conf_generic_warning_action: syslog
 auditd_audisp_remote_conf_queue_error_action: stop
 auditd_audisp_remote_conf_overflow_action: syslog
+auditd_audisp_remote_conf_startup_failure_action: warn_once_continue
 auditd_audisp_remote_conf_enable_krb5: ""
 auditd_audisp_remote_conf_krb5_principal: ""
 auditd_audisp_remote_conf_krb5_client_name: ""

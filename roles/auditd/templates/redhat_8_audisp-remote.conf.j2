@@ -10,7 +10,7 @@ local_port = {{ auditd_audisp_remote_conf_local_port }}
 {% else %}
 ##local_port =
 {% endif %}
-transport = {{ auditd_audisp_remote_conf_transport }}
+transport = {{ auditd_audisp_remote_conf_transport_rhel8 }}
 queue_file = {{ auditd_audisp_remote_conf_queue_file }}
 mode = {{ auditd_audisp_remote_conf_mode }}
 queue_depth = {{ auditd_audisp_remote_conf_queue_depth }}
@@ -29,12 +29,8 @@ generic_error_action = {{ auditd_audisp_remote_conf_generic_error_action }}
 generic_warning_action = {{ auditd_audisp_remote_conf_generic_warning_action }}
 queue_error_action = {{ auditd_audisp_remote_conf_queue_error_action }}
 overflow_action = {{ auditd_audisp_remote_conf_overflow_action }}
+startup_failure_action = {{ auditd_audisp_remote_conf_startup_failure_action }}
 
-{% if auditd_audisp_remote_conf_enable_krb5 is defined and auditd_audisp_remote_conf_enable_krb5 | length > 0 -%}
-enable_krb5 = {{ auditd_audisp_remote_conf_enable_krb5 }}
-{% else %}
-##enable_krb5 = no
-{% endif %}
 {% if auditd_audisp_remote_conf_krb5_principal is defined and auditd_audisp_remote_conf_krb5_principal | length > 0 -%}
 krb5_principal = {{ auditd_audisp_remote_conf_krb5_principal }}
 {% else %}

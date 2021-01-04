@@ -1,4 +1,3 @@
-{{ ansible_managed | comment }}
 # This file controls the configuration of the syslog plugin.
 # It simply takes events and writes them to syslog. The
 # arguments provided can be the default priority that you
@@ -9,7 +8,7 @@
 
 active = {{ auditd_audispd_syslog_conf_active }}
 direction = {{ auditd_audispd_syslog_conf_direction }}
-path = {{ auditd_audispd_syslog_conf_path_rhel7 }}
-type = {{ auditd_audispd_syslog_conf_type_rhel7 }} 
+path = {{ auditd_audispd_syslog_conf_path_rhel8 }}
+type = {{ auditd_audispd_syslog_conf_type_rhel8 }} 
 args = {{ auditd_audispd_syslog_conf_args }}
 format = {{ auditd_audispd_syslog_conf_format }}

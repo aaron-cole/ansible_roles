@@ -134,7 +134,7 @@
 {% endif %}
 
 {% if auditd_identity_watch_key is defined and auditd_identity_watch_key | length > 0 -%}
-#PRIV MODULE CHANGE WATCH KEY
+#IDENTITY WATCH KEY
 {% for item in auditd_identity_watch_key %}
 -w {{ item }} -p wa -k identity
 {% endfor %}

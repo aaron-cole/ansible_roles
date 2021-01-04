@@ -1,0 +1,15 @@
+{{ ansible_managed | comment }}
+# This file controls the audispd data path to the
+# remote event logger. This plugin will send events to
+# a remote machine (Central Logger).
+
+active = {{ auditd_audispd_au_remote_conf_active }}
+direction = {{ auditd_audispd_au_remote_conf_direction }}
+path = {{ auditd_audispd_au_remote_conf_path }}
+type = {{ auditd_audispd_au_remote_conf_type }}
+{% if auditd_audispd_au_remote_conf_args is defined and auditd_audispd_au_remote_conf_args | length > 0 -%}
+args = {{ auditd_audispd_au_remote_conf_args }}
+{% else %}
+#args =
+{% endif %}
+format = {{ auditd_audispd_au_remote_conf_format }}

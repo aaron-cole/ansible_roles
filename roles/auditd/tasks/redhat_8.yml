@@ -1,0 +1,15 @@
+# audisp redhat_8 configuration
+- name: auditd | RHEL 8 audispd configuration
+  template: 
+    src: "{{ templatevar }}{{item.src}}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: 0640
+    backup: yes
+  notify:
+    - Restart auditd
+  with_items: 
+    - { src: "_au-remote.conf.j2", dest: "/etc/audit/plugins.d/au-remote.conf" }
+    - { src: "_audisp_syslog.conf.j2", dest: "/etc/audit/plugins.d/syslog.conf" }
+    - { src: "_audisp-remote.conf.j2", dest: "/etc/audit/audisp-remote.conf" }

@@ -25,7 +25,7 @@
   block:
   - name: AuditBackend value in usbguard-daemon.conf
     lineinfile:
-      path: /etc/shells
+      path: /etc/usbguard/usbguard-daemon.conf
       create: false
       regexp: ^AuditBackend
       line: AuditBackend=LinuxAudit

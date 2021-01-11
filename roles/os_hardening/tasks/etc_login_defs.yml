@@ -1,0 +1,69 @@
+- name: Set Password Minimum Length in login.defs
+  lineinfile:
+    dest: /etc/login.defs
+    regexp: ^PASS_MIN_LEN *[0-9]*
+    state: present
+    line: PASS_MIN_LEN        {{ var_accounts_password_minlen_login_defs }}
+    create: true
+  when:
+  - accounts_password_minlen_login_defs | bool
+  
+- name: Set CREATE_HOME in login.defs
+  lineinfile:
+    dest: /etc/login.defs
+    regexp: ^CREATE_HOME*
+    state: present
+    line: CREATE_HOME     {{ var_accounts_create_home_login_defs }}
+    create: true
+  when:
+  - accounts_create_home_login_defs | bool
+
+- name: Set ENCRYPT_METHOD in login.defs
+  lineinfile:
+    dest: /etc/login.defs
+    regexp: ^ENCRYPT_METHOD*
+    state: present
+    line: ENCRYPT_METHOD {{ var_accounts_encrypt_method_login_defs }}
+    create: true
+  when:
+  - accounts_encrypt_method_login_defs | bool
+
+- name: Set Password Minimum Days in login.defs
+  lineinfile:
+    dest: /etc/login.defs
+    regexp: ^PASS_MIN_DAYS *[0-9]*
+    state: present
+    line: PASS_MIN_DAYS        {{ var_accounts_password_mindays_login_defs }}
+    create: true
+  when:
+  - accounts_password_mindays_login_defs | bool
+
+- name: Set Password Maximum Days in login.defs
+  lineinfile:
+    dest: /etc/login.defs
+    regexp: ^PASS_MAX_DAYS *[0-9]*
+    state: present
+    line: PASS_MAX_DAYS        {{ var_accounts_password_maxdays_login_defs }}
+    create: true
+  when:
+  - accounts_password_maxdays_login_defs | bool
+
+- name: Set Fail Delay in login.defs
+  lineinfile:
+    dest: /etc/login.defs
+    regexp: ^FAIL_DELAY *[0-9]*
+    state: present
+    line: FAIL_DELAY {{ var_accounts_fail_delay_login_defs }}
+    create: true
+  when:
+  - accounts_fail_delay_login_defs | bool
+
+- name: Set UMASK in login.defs
+  lineinfile:
+    dest: /etc/login.defs
+    regexp: ^UMASK *[0-9]*
+    state: present
+    line: UMASK        {{ var_accounts_umask_login_defs }}
+    create: true
+  when:
+  - accounts_umask_login_defs | bool

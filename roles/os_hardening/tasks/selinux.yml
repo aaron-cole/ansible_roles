@@ -1,0 +1,31 @@
+##SELINUX
+- name: Ensure selinux-policy is installed
+  package: 
+    name: policycoreutils
+    state: present
+  when:
+  - package_policycoreutils_installation | bool
+
+- name: Ensure policycoreutils-python-utils is installed
+  package: 
+    name: policycoreutils-python-utils
+    state: present
+  when:
+  - package_policycoreutils_python_utils_installation | bool
+
+- name: Ensure selinux state and policy
+  selinux: 
+    policy: targeted
+    state: enforcing
+    conf: /etc/selinux/config
+  when:
+  - configure_selinux_policy_state | bool
+
+- name: Ensure selinux config file permissions
+  file:
+    name: /etc/selinux/config 
+    owner: root
+    group: root
+    mode: 0644
+  when:
+  - configure_etc_selinux_config_perms | bool

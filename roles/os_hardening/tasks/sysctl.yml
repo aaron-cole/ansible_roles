@@ -1,0 +1,244 @@
+##SYSCTL Settings
+- name: Ensure sysctl kexec.load_disabled is set to 1
+  sysctl:
+    name: kernel.kexec_load_disabled
+    value: '1'
+    state: present
+    reload: true
+  when:
+  - sysctl_kernel_kexec_load_disabled | bool
+
+- name: Ensure sysctl fs.protected_symlinks is set to 1
+  sysctl:
+    name: fs.protected_symlinks
+    value: '1'
+    state: present
+    reload: true
+  when:
+  - sysctl_fs_protected_symlinks | bool
+
+- name: Ensure sysctl fs.protected_hardlinks is set to 1
+  sysctl:
+    name: fs.protected_hardlinks
+    value: '1'
+    state: present
+    reload: true
+  when:
+  - sysctl_fs_protected_hardlinks | bool
+
+- name: Ensure sysctl kernel.dmesg_restrict is set to 1
+  sysctl:
+    name: kernel.dmesg_restrict
+    value: '1'
+    state: present
+    reload: true
+  when:
+  - sysctl_kernel_dmesg_restrict | bool
+  
+- name: Ensure sysctl kernel.perf_event_paranoid is set to 2
+  sysctl:
+    name: kernel.perf_event_paranoid
+    value: '2'
+    state: present
+    reload: true
+  when:
+  - sysctl_kernel_perf_event_paranoid | bool
+
+- name: Ensure kernel.randomize_va_space is set to 2
+  sysctl:
+    name: kernel.randomize_va_space
+    value: '2'
+    state: present
+    reload: true
+  when:
+  - sysctl_kernel_randomize_va_space | bool
+
+- name: Ensure kernel.core_pattern is set to |/bin/false
+  sysctl:
+    name: kernel.core_pattern
+    value: '|/bin/false'
+    state: present
+    reload: true
+  when:
+  - sysctl_kernel_core_pattern | bool
+  
+- name: Ensure sysctl net.ipv4.conf.default.accept_redirects is set to 0
+  sysctl:
+    name: net.ipv4.conf.default.accept_redirects
+    value: '0'
+    state: present
+    reload: true
+  when:
+  - sysctl_net_ipv4_conf_default_accept_redirects | bool
+
+- name: Ensure sysctl net.ipv6.conf.default.accept_redirects is set to 0
+  sysctl:
+    name: net.ipv6.conf.default.accept_redirects
+    value: '0'
+    state: present
+    reload: true
+  when:
+  - sysctl_net_ipv6_conf_default_accept_redirects | bool
+  
+- name: Ensure sysctl net.ipv4.conf.all.send_redirects is set to 0
+  sysctl:
+    name: net.ipv4.conf.all.send_redirects
+    value: '0'
+    state: present
+    reload: true
+  when:
+  - sysctl_net_ipv4_conf_all_send_redirects | bool
+  
+- name: Ensure sysctl net.ipv4.icmp_echo_ignore_broadcasts is set to 1
+  sysctl:
+    name: net.ipv4.icmp_echo_ignore_broadcasts
+    value: '1'
+    state: present
+    reload: true
+  when:
+  - sysctl_net_ipv4_icmp_echo_ignore_broadcasts | bool
+
+- name: Ensure sysctl net.ipv4.conf.all.accept_source_route is set to 0
+  sysctl:
+    name: net.ipv4.conf.all.accept_source_route
+    value: '0'
+    state: present
+    reload: true
+  when:
+  - sysctl_net_ipv4_conf_all_accept_source_route | bool
+
+- name: Ensure sysctl net.ipv6.conf.all.accept_source_route is set to 0
+  sysctl:
+    name: net.ipv6.conf.all.accept_source_route
+    value: '0'
+    state: present
+    reload: true
+  when:
+  - sysctl_net_ipv6_conf_all_accept_source_route | bool
+  
+- name: Ensure sysctl net.ipv4.conf.default.accept_source_route is set to 0
+  sysctl:
+    name: net.ipv4.conf.default.accept_source_route
+    value: '0'
+    state: present
+    reload: true
+  when:
+  - sysctl_net_ipv4_conf_default_accept_source_route | bool
+
+- name: Ensure sysctl net.ipv6.conf.default.accept_source_route is set to 0
+  sysctl:
+    name: net.ipv6.conf.default.accept_source_route
+    value: '0'
+    state: present
+    reload: true
+  when:
+  - sysctl_net_ipv6_conf_default_accept_source_route | bool
+
+- name: Ensure sysctl net.ipv4.ip_forward is set to 0
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '0'
+    state: present
+    reload: true
+  when:
+  - sysctl_net_ipv4_ip_forward | bool
+
+- name: Ensure sysctl net.ipv6.conf.all.forwarding is set to 0
+  sysctl:
+    name: net.ipv6.conf.all.forwarding
+    value: '0'
+    state: present
+    reload: true
+  when:
+  - sysctl_net_ipv6_conf_all_forwarding | bool
+
+- name: Ensure sysctl net.ipv6.conf.all.accept_ra is set to 0
+  sysctl:
+    name: net.ipv6.conf.all.accept_ra
+    value: '0'
+    state: present
+    reload: true
+  when:
+  - sysctl_net_ipv6_conf_all_accept_ra | bool
+
+- name: Ensure sysctl net.ipv6.conf.default.accept_ra is set to 0
+  sysctl:
+    name: net.ipv6.conf.default.accept_ra
+    value: '0'
+    state: present
+    reload: true
+  when:
+  - sysctl_net_ipv6_conf_default_accept_ra | bool
+
+- name: Ensure sysctl net.ipv4.conf.default.send_redirects is set to 0
+  sysctl:
+    name: net.ipv4.conf.default.send_redirects
+    value: '0'
+    state: present
+    reload: true
+  when:
+  - sysctl_net_ipv4_conf_default_send_redirects | bool
+
+- name: Ensure sysctl net.ipv4.conf.all.accept_redirects is set to 0
+  sysctl:
+    name: net.ipv4.conf.all.accept_redirects
+    value: '0'
+    state: present
+    reload: true
+  when:
+  - sysctl_net_ipv4_conf_all_accept_redirects | bool
+
+- name: Ensure sysctl net.ipv6.conf.all.accept_redirects is set to 0
+  sysctl:
+    name: net.ipv6.conf.all.accept_redirects
+    value: '0'
+    state: present
+    reload: true
+  when:
+  - sysctl_net_ipv6_conf_all_accept_redirects | bool
+
+- name: Ensure sysctl kernel.unprivileged_bpf_disabled is set to 1
+  sysctl:
+    name: kernel.unprivileged_bpf_disabled
+    value: '1'
+    state: present
+    reload: true
+  when:
+  - sysctl_kernel_unprivileged_bpf_disabled | bool
+
+- name: Ensure sysctl kernel.yama.ptrace_scope is set to 1
+  sysctl:
+    name: kernel.yama.ptrace_scope
+    value: '1'
+    state: present
+    reload: true
+  when:
+  - sysctl_kernel_yama_ptrace_scope | bool
+
+- name: Ensure sysctl kernel.kptr_restrict is set to 1
+  sysctl:
+    name: kernel.kptr_restrict
+    value: '1'
+    state: present
+    reload: true
+  when:
+  - sysctl_kernel_kptr_restrict | bool
+
+- name: Ensure user.max_user_namespaces is set to 0
+  sysctl:
+    name: user.max_user_namespaces
+    value: '0'
+    state: present
+    reload: true
+  when:
+  - sysctl_user_max_user_namespaces | bool
+
+- name: Ensure net.ipv4.conf.all.rp_filter is set to 1
+  sysctl:
+    name: net.ipv4.conf.all.rp_filter
+    value: '1'
+    state: present
+    reload: true
+  when:
+  - sysctl_net_ipv4_conf_all_rp_filter | bool
+

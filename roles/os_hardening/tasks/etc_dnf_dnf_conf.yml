@@ -1,0 +1,33 @@
+##/etc/dnf/dnf.conf
+- name: Ensure gpgcheck 1 in /etc/dnf/dnf.conf
+  ini_file:
+    dest: /etc/dnf/dnf.conf
+    section: main
+    option: gpgcheck
+    value: "1"
+    no_extra_spaces: true
+    create: false
+  when:
+  - ensure_gpgcheck_global_setting | bool
+
+- name: Ensure localpkg_gpgcheck True in /etc/dnf/dnf.conf
+  ini_file:
+    dest: /etc/dnf/dnf.conf
+    section: main
+    option: localpkg_gpgcheck
+    value: "True"
+    no_extra_spaces: true
+    create: false
+  when:
+  - ensure_localpkg_gpgcheck_global_setting | bool
+
+- name: Ensure clean_requirements_on_remove True in /etc/dnf/dnf.conf
+  ini_file:
+    dest: /etc/dnf/dnf.conf
+    section: main
+    option: clean_requirements_on_remove
+    value: "True"
+    no_extra_spaces: true
+    create: false
+  when:
+  - ensure_clean_requirements_on_remove_global_setting | bool

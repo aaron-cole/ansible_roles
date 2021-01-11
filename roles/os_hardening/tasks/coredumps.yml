@@ -1,0 +1,72 @@
+##Coredump
+- name: Disable service kdump
+  systemd:
+    name: kdump.service
+    enabled: 'no'
+    state: stopped
+  when:
+  - service_kdump_disabled | bool
+  
+- name: Disable service systemd-coredump
+  block:
+  - name: Gather the service facts
+    service_facts: null
+  - name: Disable service systemd-coredump
+    systemd:
+      name: systemd-coredump.service
+      enabled: 'no'
+      state: stopped
+      masked: 'yes'
+    when: '"systemd-coredump.service" in ansible_facts.services'
+  when:
+  - service_coredump_disabled | bool
+
+- name: Unit Socket Exists - systemd-coredump.socket
+  command: systemctl list-unit-files systemd-coredump.socket
+  args:
+    warn: false
+  register: socket_file_exists
+  changed_when: false
+  ignore_errors: true
+  check_mode: false
+  when:
+  - service_coredump_socket_disabled | bool
+
+- name: Disable socket systemd-coredump
+  systemd:
+    name: systemd-coredump.socket
+    enabled: 'no'
+    state: stopped
+    masked: 'yes'
+  when:
+  - '"systemd-coredump.socket" in socket_file_exists.stdout_lines[1]'
+  - service_coredump_socket_disabled | bool
+
+- name: Disable core dump backtraces /etc/systemd/coredump.conf
+  lineinfile:
+    path: /etc/systemd/coredump.conf
+    create: false
+    regexp: ^[^#]ProcessSizeMax=
+    line: ProcessSizeMax=0
+    state: present
+  when:
+  - coredump_disable_backtraces | bool
+
+- name: disable core dumps with limits
+  lineinfile:
+    dest: /etc/security/limits.conf
+    regexp: ^[^#].*core
+    line: '*        hard       core      0'
+    create: true
+  when:
+  - disable_users_coredumps | bool
+
+- name: Disable storing core dump /etc/systemd/coredump.conf
+  lineinfile:
+    path: /etc/systemd/coredump.conf
+    create: false
+    regexp: ^[^#]Storage=
+    line: Storage=none
+    state: present
+  when:
+  - coredump_disable_storage | bool

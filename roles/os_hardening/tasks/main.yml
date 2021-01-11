@@ -1,0 +1,71 @@
+#Defaults
+
+- name: tmux
+  include_tasks: "tmux.yml"
+  when:
+  - harden_tmux | bool
+
+- name: usbguard
+  include_tasks: "usbguard.yml"
+  when:
+  - harden_usbguard | bool  
+
+- name: /etc/login.defs
+  include_tasks: "etc_login_defs.yml"
+  when:
+  - harden_etc_login_defs | bool  
+
+- name: Packages to remove
+  include_tasks: "packages_to_remove.yml"
+  when:
+  - harden_remove_packages | bool
+
+- name: SELINUX
+  include_tasks: "selinux.yml"
+  when:
+  - harden_selinux | bool  
+
+- name: RNGD
+  include_tasks: "rng.yml"
+  when:
+  - harden_rngd_service | bool
+
+- name: CoreDumps
+  include_tasks: "coredumps.yml"
+  when:
+  - harden_coredumps | bool  
+  
+- name: Sysctl Settings
+  include_tasks: "sysctl.yml"
+  when:
+  - harden_sysctl | bool
+
+- name: File and directory Permissions
+  include_tasks: "file_directory_permission.yml"
+  when:
+  - harden_file_dirctory_permissions | bool
+
+- name: /etc/dnf/dnf.conf
+  include_tasks: "etc_dnf_dnf_conf.yml"
+  when:
+  - harden_etc_dnf_dnf_conf | bool 
+
+- name: /etc/sysconfig/sshd
+  include_tasks: "etc_sysconfig_sshd.yml"
+  when:
+  - harden_etc_sysconfig_sshd | bool  
+  
+- name: Disabling Modprobe items
+  include_tasks: "modprobe_disabled.yml"
+  when:
+  - harden_modprobe | bool
+
+- name: SSHD configuration
+  include_tasks: "sshd_configuration.yml"
+  when:
+  - harden_sshd_configuration | bool
+
+- name: Postfix
+  include_tasks: "postfix.yml"
+  when:
+  - harden_postfix | bool

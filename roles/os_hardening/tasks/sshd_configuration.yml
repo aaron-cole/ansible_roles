@@ -1,0 +1,204 @@
+##etc_ssh_sshd_config
+- name: Ensure openssh-server is installed
+  package:
+    name: openssh-server
+    state: present
+  when:
+  - package_openssh_server_installed | bool
+
+- name: Enable service sshd
+  block:
+  - name: Gather the package facts
+    package_facts:
+      manager: auto
+  - name: Enable service sshd
+    service:
+      name: sshd
+      enabled: 'yes'
+      state: started
+    when:
+    - '"openssh-server" in ansible_facts.packages'
+  when:
+  - service_sshd_enabled | bool
+
+- name: Set X11 to use local host
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: ^X11UseLocalhost 
+    line: X11UseLocalhost yes
+    state: present
+    insertbefore: ^[#\s]*Match
+    validate: /usr/sbin/sshd -t -f %s
+  when:
+  - configure_sshd_config_x11uselocalhost | bool
+  notify:
+  - Restart sshd service
+  
+- name: Set Rekey Limit
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: ^RekeyLimit
+    line: RekeyLimit 1G 1h
+    state: present
+    insertbefore: ^[#\s]*Match
+    validate: /usr/sbin/sshd -t -f %s
+  when:
+  - configure_sshd_config_rekeylimit | bool
+  notify:
+  - Restart sshd service
+  
+- name: Set PrintLastLog
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: ^PrintLastLog
+    line: PrintLastLog yes
+    state: present
+    insertbefore: ^[#\s]*Match
+    validate: /usr/sbin/sshd -t -f %s
+  when:
+  - configure_sshd_config_printlastlog | bool
+  notify:
+  - Restart sshd service
+  
+- name: Set PermitEmptyPasswords
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: ^PermitEmptyPasswords
+    line: PermitEmptyPasswords no
+    state: present
+    insertbefore: ^[#\s]*Match
+    validate: /usr/sbin/sshd -t -f %s
+  when:
+  - configure_sshd_config_permitemptypasswords | bool
+  notify:
+  - Restart sshd service
+  
+- name: Set PermitUserEnvironment
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: ^PermitUserEnvironment
+    line: PermitUserEnvironment no
+    state: present
+    insertbefore: ^[#\s]*Match
+    validate: /usr/sbin/sshd -t -f %s
+  when:
+  - configure_sshd_config_permituserenvironment | bool
+  notify:
+  - Restart sshd service
+
+- name: Set PermitRootLogin
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: ^PermitRootLogin
+    line: PermitRootLogin no
+    state: present
+    insertbefore: ^[#\s]*Match
+    validate: /usr/sbin/sshd -t -f %s
+  when:
+  - configure_sshd_config_permitrootlogin | bool
+  notify:
+  - Restart sshd service
+
+- name: Set KerberosAuthentication
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: ^KerberosAuthentication
+    line: KerberosAuthentication no
+    state: present
+    insertbefore: ^[#\s]*Match
+    validate: /usr/sbin/sshd -t -f %s
+  when:
+  - configure_sshd_config_kerberosauthentication | bool
+  notify:
+  - Restart sshd service
+
+- name: Set GSSAPIAuthentication
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: ^GSSAPIAuthentication
+    line: GSSAPIAuthentication no
+    state: present
+    insertbefore: ^[#\s]*Match
+    validate: /usr/sbin/sshd -t -f %s
+  when:
+  - configure_sshd_config_gssapiauthentication | bool
+  notify:
+  - Restart sshd service
+  
+- name: Set IgnoreUserKnownHosts
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: ^IgnoreUserKnownHosts
+    line: IgnoreUserKnownHosts yes
+    state: present
+    insertbefore: ^[#\s]*Match
+    validate: /usr/sbin/sshd -t -f %s
+  when:
+  - configure_sshd_config_ignoreuserknownhosts | bool
+  notify:
+  - Restart sshd service
+
+- name: Set Compression
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: ^Compression
+    line: Compression no
+    state: present
+    insertbefore: ^[#\s]*Match
+    validate: /usr/sbin/sshd -t -f %s
+  when:
+  - configure_sshd_config_compression | bool
+  notify:
+  - Restart sshd service
+
+- name: Set StrictModes
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: ^StrictModes
+    line: StrictModes yes
+    state: present
+    insertbefore: ^[#\s]*Match
+    validate: /usr/sbin/sshd -t -f %s
+  when:
+  - configure_sshd_config_strictmodes | bool
+  notify:
+  - Restart sshd service
+
+- name: Set ClientAliveInterval
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: ^ClientAliveInterval
+    line: ClientAliveInterval 600
+    state: present
+    insertbefore: ^[#\s]*Match
+    validate: /usr/sbin/sshd -t -f %s
+  when:
+  - configure_sshd_config_clientaliveinterval | bool
+  notify:
+  - Restart sshd service
+
+- name: Set ClientAliveCountMax
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: ^ClientAliveCountMax
+    line: ClientAliveCountMax 0
+    state: present
+    insertbefore: ^[#\s]*Match
+    validate: /usr/sbin/sshd -t -f %s
+  when:
+  - configure_sshd_config_clientalivecountmax | bool
+  notify:
+  - Restart sshd service
+
+- name: Set banner
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: ^banner
+    line: banner /etc/issue
+    state: present
+    insertbefore: ^[#\s]*Match
+    validate: /usr/sbin/sshd -t -f %s
+  when:
+  - configure_sshd_config_banner | bool
+  notify:
+  - Restart sshd service

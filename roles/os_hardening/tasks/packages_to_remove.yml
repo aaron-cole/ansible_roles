@@ -1,0 +1,70 @@
+##Packages that shouldn't be present
+- name: Ensure krb5-workstation is NOT installed
+  package:
+    name: krb5-workstation
+    state: absent
+  when:
+  - package_krb5_workstation_remove | bool
+  
+- name: Ensure telnet server is NOT installed
+  package:
+    name: telnet-server
+    state: absent
+  when:
+  - package_telnet_server_remove | bool
+  
+- name: Ensure abrt is NOT installed
+  package:
+    name: abrt
+    state: absent
+  when:
+  - package_abrt_remove | bool
+  
+- name: Ensure sendmail is NOT installed
+  package:
+    name: sendmail
+    state: absent
+  when:
+  - package_sendmail_remove | bool
+  
+- name: Ensure gssproxy is NOT installed
+  package:
+    name: gssproxy
+    state: absent
+  when:
+  - package_gssproxy_remove | bool
+
+- name: Ensure rsh-server is NOT installed
+  package:
+    name: rsh-server
+    state: absent
+  when:
+  - package_rsh_server_remove | bool
+  
+- name: Ensure tftp-server is NOT installed
+  package:
+    name: tftp-server
+    state: absent
+  when:
+  - package_tftp_server_remove | bool
+  
+- name: Ensure vsftpd is NOT installed
+  package:
+    name: vsftpd
+    state: absent
+  when:
+  - package_vsftpd_remove | bool
+
+- name: Ensure tuned is NOT installed
+  package:
+    name: tuned
+    state: absent
+  when:
+  - package_tuned_remove | bool
+  
+- name: Ensure iprutils is NOT installed
+  package:
+    name: iprutils
+    state: absent
+  when:
+  - package_iprutils_remove | bool

@@ -1,0 +1,21 @@
+##/etc/sysconfig/sshd
+- name: Setting unquoted shell-style assignment of 'SSH_USE_STRONG_RNG' to '32' in '/etc/sysconfig/sshd'
+  lineinfile:
+    path: /etc/sysconfig/sshd
+    regexp: ^SSH_USE_STRONG_RNG=
+    line: SSH_USE_STRONG_RNG=32
+    state: present
+    insertbefore: ^# SSH_USE_STRONG_RNG
+    validate: /usr/bin/bash -n %s
+  when:
+  - ensure_sshd_use_strong_rng | bool
+
+- name: Setting /etc/sysconfig/sshd to use system crypto policy
+  lineinfile:
+    path: /etc/sysconfig/sshd
+    regexp: ^CRYPTO_POLICY=
+    state: absent
+    validate: /usr/bin/bash -n %s
+  when:
+  - ensure_sshd_use_system_crypto_policy | bool
+  

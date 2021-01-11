@@ -1,0 +1,37 @@
+##USBGUARD
+- name: Ensure usbguard is installed
+  package:
+    name: usbguard
+    state: present
+  when:
+  - package_usbguard_installed | bool
+
+- name: Enable service usbguard
+  block:
+  - name: Gather the package facts
+    package_facts:
+      manager: auto
+  - name: Enable service usbguard
+    service:
+      name: usbguard
+      enabled: 'yes'
+      state: started
+    when:
+    - '"usbguard" in ansible_facts.packages'
+  when:
+  - service_usbguard_enabled | bool
+  
+- name: Configure usbguard-daemon.conf
+  block:
+  - name: AuditBackend value in usbguard-daemon.conf
+    lineinfile:
+      path: /etc/shells
+      create: false
+      regexp: ^AuditBackend
+      line: AuditBackend=LinuxAudit
+      state: present
+    notify:
+    - Restart usbguard
+  when:
+  - configure_usbguard_daemon_conf | bool
+  

@@ -1,0 +1,22 @@
+##RNGD
+- name: Ensure rngd is installed
+  package: 
+    name: rng-tools
+    state: present
+  when:
+  - package_rng_tools_installation | bool
+
+- name: Enable service rngd service
+  block:
+  - name: Gather the package facts
+    package_facts:
+      manager: auto
+  - name: Enable service rngd
+    service:
+      name: rngd
+      enabled: 'yes'
+      state: started
+    when:
+    - '"rng-tools" in ansible_facts.packages'
+  when:
+  - service_rngd_enabled | bool

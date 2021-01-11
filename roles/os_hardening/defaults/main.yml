@@ -1,0 +1,177 @@
+##Defaults
+
+##TMUX Settings
+harden_tmux: false
+package_tmux_installed: true
+configure_tmux_lock_after_time: true
+configure_tmux_lock_command: true
+configure_tmux_etc_bashrc: true
+configure_tmux_etc_shells: true
+
+##USBGUARD
+harden_usbguard: false
+package_usbguard_installed: true
+service_usbguard_enabled: true
+configure_usbguard_daemon_conf: true
+
+##/etc/login.defs
+harden_etc_login_defs: false
+accounts_password_minlen_login_defs: true
+var_accounts_password_minlen_login_defs: "15"
+accounts_create_home_login_defs: true
+var_accounts_create_home_login_defs: "yes"
+accounts_encrypt_method_login_defs: true
+var_accounts_encrypt_method_login_defs: SHA512
+accounts_password_mindays_login_defs: true
+var_accounts_password_mindays_login_defs: "1"
+accounts_password_maxdays_login_defs: true
+var_accounts_password_maxdays_login_defs: "60"
+accounts_fail_delay_login_defs: true
+var_accounts_fail_delay_login_defs: "4"
+accounts_umask_login_defs: true
+var_accounts_umask_login_defs: "077"
+
+##Packages to remove
+harden_remove_packages: false
+package_krb5_workstation_remove: true
+package_telnet_server_remove: true
+package_abrt_remove: true
+package_sendmail_remove: true
+package_gssproxy_remove: true
+package_rsh_server_remove: true
+package_tftp_server_remove: true
+package_vsftpd_remove: true
+package_tuned_remove: true
+package_iprutils_remove: true
+
+##SELINUX
+harden_selinux: false
+package_policycoreutils_installation: true
+package_policycoreutils_python_utils_installation: true
+configure_selinux_policy_state: true
+configure_etc_selinux_config_perms: true
+
+##RNG
+harden_rngd_service: false
+package_rng_tools_installation: true
+service_rngd_enabled: true
+
+##CoreDumps
+harden_coredumps: false
+service_kdump_disabled: true
+service_coredump_disabled: true
+service_coredump_socket_disabled: true
+coredump_disable_backtraces: true
+disable_users_coredumps: true
+coredump_disable_storage: true
+
+##Sysctl Settings
+harden_sysctl: false
+sysctl_kernel_kexec_load_disabled: true
+sysctl_fs_protected_symlinks: true
+sysctl_fs_protected_hardlinks: true
+sysctl_kernel_dmesg_restrict: true
+sysctl_kernel_perf_event_paranoid: true
+sysctl_kernel_randomize_va_space: true
+sysctl_kernel_core_pattern: true
+sysctl_net_ipv4_conf_default_accept_redirects: true
+sysctl_net_ipv6_conf_default_accept_redirects: true
+sysctl_net_ipv4_conf_all_send_redirects: true
+sysctl_net_ipv4_icmp_echo_ignore_broadcasts: true
+sysctl_net_ipv4_conf_all_accept_source_route: true
+sysctl_net_ipv6_conf_all_accept_source_route: true
+sysctl_net_ipv4_conf_default_accept_source_route: true
+sysctl_net_ipv6_conf_default_accept_source_route: true
+sysctl_net_ipv4_ip_forward: true
+sysctl_net_ipv6_conf_all_forwarding: true
+sysctl_net_ipv6_conf_all_accept_ra: true
+sysctl_net_ipv6_conf_default_accept_ra: true
+sysctl_net_ipv4_conf_default_send_redirects: true
+sysctl_net_ipv4_conf_all_accept_redirects: true
+sysctl_net_ipv6_conf_all_accept_redirects: true
+sysctl_kernel_unprivileged_bpf_disabled: true
+sysctl_kernel_yama_ptrace_scope: true
+sysctl_kernel_kptr_restrict: true
+sysctl_user_max_user_namespaces: true
+sysctl_net_ipv4_conf_all_rp_filter: true
+
+##File and Directory Permissions
+harden_file_dirctory_permissions: false
+configure_var_log_messages_permissions: true
+configure_var_log_permissions: true
+configure_audit_log_file_permissions: true
+configure_audit_log_dir_permissions: true
+configure_audit_tools_permissions: true
+
+##/etc/dnf/dnf.conf
+harden_etc_dnf_dnf_conf: false
+ensure_gpgcheck_global_setting: true
+ensure_localpkg_gpgcheck_global_setting: true
+ensure_clean_requirements_on_remove_global_setting: true
+
+##/etc/sysconfig/sshd
+harden_etc_sysconfig_sshd: false
+ensure_sshd_use_strong_rng: true
+ensure_sshd_use_system_crypto_policy: true
+
+##Modprobe Disabled items
+harden_modprobe: false
+configure_modprobe_uvcvideo_disabled: true
+configure_modprobe_atm_disabled: true
+configure_modprobe_can_disabled: true
+configure_modprobe_sctp_disabled: true
+configure_modprobe_tipc_disabled: true
+configure_modprobe_cramfs_disabled: true
+configure_modprobe_firewire_core_disabled: true
+configure_modprobe_usb_storage_disabled: true
+configure_modprobe_bluetooth_disabled: true
+
+##SSHD Configuration
+harden_sshd_configuration: false
+package_openssh_server_installed: true
+service_sshd_enabled: true
+configure_sshd_config_x11uselocalhost: true
+configure_sshd_config_x11forwarding: true
+configure_sshd_config_rekeylimit: true
+configure_sshd_config_printlastlog: true
+configure_sshd_config_permitemptypasswords: true
+configure_sshd_config_permituserenvironment: true
+configure_sshd_config_permitrootlogin: true
+configure_sshd_config_kerberosauthentication: true
+configure_sshd_config_gssapiauthentication: true
+configure_sshd_config_ignoreuserknownhosts: true
+configure_sshd_config_compression: true
+configure_sshd_config_strictmodes: true
+configure_sshd_config_clientaliveinterval: true
+configure_sshd_config_clientalivecountmax: true
+configure_sshd_config_banner: true
+
+##Postfix
+harden_postfix: true
+package_postfix_installed: true
+service_postfix_enabled: true
+configure_postfix_smtpd_client_restrictions: true
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

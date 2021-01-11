@@ -1,0 +1,66 @@
+##File & Directory Permissions
+- name: Ensure /var/log/messages file permissions
+  file:
+    name: /var/log/messages 
+    owner: root
+    group: root
+    mode: 0600
+  when:
+  - configure_var_log_messages_permissions | bool
+
+- name: Ensure /var/log directory permissions
+  file:
+    name: /var/log
+    owner: root
+    group: root
+    mode: 0755
+  when:
+  - configure_var_log_permissions | bool
+
+- name: Ensure audit log file permissions
+  block:
+  - name: get audit log from /etc/audit/auditd.conf
+    shell: grep "^log_file = " /etc/audit/auditd.conf | awk '{print $3}'
+    register: audit_log_file
+  - name: set audit log file permissions
+    file:
+      name: "{{ audit_log_file.stdout }}"
+      owner: root
+      group: root
+      mode: 0600
+    when: audit_log_file.stdout != ""
+  when:
+  - configure_audit_log_file_permissions | bool
+
+- name: Ensure audit log directory permissions
+  block:
+  - name: get audit log directory from /etc/audit/auditd.conf
+    shell: dirname "$(grep "^log_file = " /etc/audit/auditd.conf | awk '{print $3}')"
+    register: audit_log_dir
+  - name: set audit log directory permissions
+    file:
+      name: "{{ audit_log_dir.stdout }}"
+      owner: root
+      group: root
+      mode: 0700
+    when: audit_log_dir.stdout != ""      
+  when:
+  - configure_audit_log_dir_permissions | bool
+
+- name: Ensure audit tools file permissions
+  file:
+    name: "{{ item.name }}"
+    owner: root
+    group: root
+    mode: "{{ item.perms }}"
+  with_items:
+    - { name: "/usr/sbin/auditctl", perms: "0755" }
+    - { name: "/usr/sbin/aureport", perms: "0755" }
+    - { name: "/usr/sbin/ausearch", perms: "0755" }
+    - { name: "/usr/sbin/autrace", perms: "0750" }    
+    - { name: "/usr/sbin/auditd", perms: "0755" }    
+    - { name: "/usr/sbin/rsyslogd", perms: "0755" }
+    - { name: "/usr/sbin/augenrules", perms: "0755" }    
+  when:
+  - configure_audit_tools_permissions | bool
+  

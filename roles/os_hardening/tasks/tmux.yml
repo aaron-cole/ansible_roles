@@ -1,0 +1,69 @@
+##TMUX
+- name: Ensure tmux is installed
+  package:
+    name: tmux
+    state: present
+  when:
+  - package_tmux_installed | bool
+
+- name: Configure tmux to lock session after inactivity
+  block:
+  - name: Deduplicate values from /etc/tmux.conf
+    lineinfile:
+      path: /etc/tmux.conf
+      create: false
+      regexp: ^\s*set -g lock-after-time\s+
+      state: absent
+  - name: Insert correct line to /etc/tmux.conf
+    lineinfile:
+      path: /etc/tmux.conf
+      create: true
+      line: set -g lock-after-time 900
+      state: present
+  when:
+  - configure_tmux_lock_after_time | bool
+  
+- name: Configure the tmux Lock Command
+  block:
+  - name: Deduplicate values from /etc/tmux.conf
+    lineinfile:
+      path: /etc/tmux.conf
+      create: false
+      regexp: ^\s*set -g lock-command\s+
+      state: absent
+  - name: Insert correct line to /etc/tmux.conf
+    lineinfile:
+      path: /etc/tmux.conf
+      create: true
+      line: set -g lock-command vlock
+      state: present
+  when:
+  - configure_tmux_lock_command | bool
+
+- name: Configure tmux in /etc/bashrc
+  block:
+  - name: Deduplicate values from /etc/bashrc
+    lineinfile:
+      path: /etc/bashrc
+      create: false
+      regexp: ^\s*"$PS1"*"$TMUX"\s+
+      state: absent
+  - name: Insert correct line to /etc/bashrc
+    lineinfile:
+      path: /etc/bashrc
+      create: true
+      line: '[ -n "$PS1" -a -z "$TMUX" ] && exec tmux'
+      state: present
+  when:
+  - configure_tmux_etc_bashrc | bool
+
+- name: Configure tmux in /etc/shells
+  block:
+  - name: Remove values from /etc/shells
+    lineinfile:
+      path: /etc/shells
+      create: false
+      regexp: tmux
+      state: absent
+  when:
+  - configure_tmux_etc_shells | bool

@@ -1,0 +1,36 @@
+##Postfix
+- name: Ensure postfix is installed
+  package:
+    name: postfix
+    state: present
+  when:
+  - package_postfix_installed | bool
+
+- name: Enable service postfix
+  block:
+  - name: Gather the package facts
+    package_facts:
+      manager: auto
+  - name: Enable service postfix
+    service:
+      name: postfix
+      enabled: 'yes'
+      state: started
+    when:
+    - '"postfix" in ansible_facts.packages'
+  when:
+  - service_postfix_enabled | bool
+
+- name: postfix_settings | configuration
+  lineinfile:
+    path: /etc/postfix/main.cf
+    owner: root
+    group: root
+    mode: 0644
+    state: present
+    regexp: ^smtpd_client_restrictions =
+    line: smtpd_client_restrictions = permit_mynetworks, reject"
+  when: 
+  - configure_postfix_smtpd_client_restrictions | bool
+  notify:
+    - Restart postfix service

@@ -1,0 +1,171 @@
+##Modprobe disabled
+- name: Blacklist and stop from loading uvcvideo
+  block:
+  - name: uvcvideo modprobe blacklisting
+    kernel_blacklist:
+      name: uvcvideo
+      state: present
+  - name: uvcvideo modprobe disable loading
+    lineinfile:
+      path: /etc/modprobe.d/blacklist-ansible.conf
+      create: yes
+      owner: root
+      group: root
+      mode: 644
+      state: present
+      regexp: ^install uvcvideo
+      line:  install uvcvideo /bin/true
+  when:
+  - configure_modprobe_uvcvideo_disabled | bool
+
+- name: Blacklist and stop from loading ATM
+  block:
+  - name: ATM modprobe blacklisting
+    kernel_blacklist:
+      name: ATM
+      state: present
+  - name: ATM modprobe disable loading
+    lineinfile:
+      path: /etc/modprobe.d/blacklist-ansible.conf
+      create: yes
+      owner: root
+      group: root
+      mode: 644
+      state: present
+      regexp: ^install ATM
+      line:  install ATM /bin/true
+  when:
+  - configure_modprobe_atm_disabled | bool
+
+- name: Blacklist and stop from loading CAN
+  block:
+  - name: CAN modprobe blacklisting
+    kernel_blacklist:
+      name: CAN
+      state: present
+  - name: CAN modprobe disable loading
+    lineinfile:
+      path: /etc/modprobe.d/blacklist-ansible.conf
+      create: yes
+      owner: root
+      group: root
+      mode: 644
+      state: present
+      regexp: ^install CAN
+      line:  install CAN /bin/true
+  when:
+  - configure_modprobe_can_disabled | bool  
+
+- name: Blacklist and stop from loading SCTP
+  block:
+  - name: SCTP modprobe blacklisting
+    kernel_blacklist:
+      name: SCTP
+      state: present
+  - name: SCTP modprobe disable loading
+    lineinfile:
+      path: /etc/modprobe.d/blacklist-ansible.conf
+      create: yes
+      owner: root
+      group: root
+      mode: 644
+      state: present
+      regexp: ^install SCTP
+      line:  install SCTP /bin/true
+  when:
+  - configure_modprobe_sctp_disabled | bool   
+
+- name: Blacklist and stop from loading TIPC
+  block:
+  - name: TIPC modprobe blacklisting
+    kernel_blacklist:
+      name: TIPC
+      state: present
+  - name: TIPC modprobe disable loading
+    lineinfile:
+      path: /etc/modprobe.d/blacklist-ansible.conf
+      create: yes
+      owner: root
+      group: root
+      mode: 644
+      state: present
+      regexp: ^install TIPC
+      line:  install TIPC /bin/true
+  when:
+  - configure_modprobe_tipc_disabled | bool  
+
+- name: Blacklist and stop from loading cramfs
+  block:
+  - name: cramfs modprobe blacklisting
+    kernel_blacklist:
+      name: cramfs
+      state: present
+  - name: cramfs modprobe disable loading
+    lineinfile:
+      path: /etc/modprobe.d/blacklist-ansible.conf
+      create: yes
+      owner: root
+      group: root
+      mode: 644
+      state: present
+      regexp: ^install cramfs
+      line:  install cramfs /bin/true
+  when:
+  - configure_modprobe_cramfs_disabled | bool  
+
+- name: Blacklist and stop from loading firewire-core
+  block:
+  - name: firewire-core modprobe blacklisting
+    kernel_blacklist:
+      name: firewire-core
+      state: present
+  - name: firewire-core modprobe disable loading
+    lineinfile:
+      path: /etc/modprobe.d/blacklist-ansible.conf
+      create: yes
+      owner: root
+      group: root
+      mode: 644
+      state: present
+      regexp: ^install firewire-core
+      line:  install firewire-core /bin/true
+  when:
+  - configure_modprobe_firewire_core_disabled | bool 
+
+- name: Blacklist and stop from loading usb-storage
+  block:
+  - name: usb-storage modprobe blacklisting
+    kernel_blacklist:
+      name: usb-storage
+      state: present
+  - name: usb-storage modprobe disable loading
+    lineinfile:
+      path: /etc/modprobe.d/blacklist-ansible.conf
+      create: yes
+      owner: root
+      group: root
+      mode: 644
+      state: present
+      regexp: ^install usb-storage
+      line:  install usb-storage /bin/true
+  when:
+  - configure_modprobe_usb_storage_disabled | bool
+    
+- name: Blacklist and stop from loading bluetooth
+  block:
+  - name: bluetooth modprobe blacklisting
+    kernel_blacklist:
+      name: bluetooth
+      state: present
+  - name: bluetooth modprobe disable loading
+    lineinfile:
+      path: /etc/modprobe.d/blacklist-ansible.conf
+      create: yes
+      owner: root
+      group: root
+      mode: 644
+      state: present
+      regexp: ^install bluetooth
+      line:  install bluetooth /bin/true
+  when:
+  - configure_modprobe_bluetooth_disabled | bool

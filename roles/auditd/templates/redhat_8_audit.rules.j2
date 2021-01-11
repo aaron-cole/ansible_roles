@@ -12,6 +12,16 @@
 ## Set failure mode to syslog
 -f {{ auditd_rules_failure }}
 
+{% if auditd_rules_loginuid_immutable is defined and auditd_rules_loginuid_immutable | length > 0 -%}
+## Make login UID immutable once it is set (may break containers) 
+--{{auditd_rules_loginuid_immutable }}
+{% endif %}
+
+{% if auditd_rules_loginuid_immutable is defined and auditd_rules_loginuid_immutable -%}
+## Make the configuration immutable -- reboot is required to change audit rules 
+-e 2
+{% endif %}
+
 #Additional Audit Rules
 
 {% if auditd_rules_setuid_key is defined and auditd_rules_setuid_key | length > 0 -%}
@@ -51,7 +61,7 @@
 {% if auditd_priv_change_key is defined and auditd_priv_change_key | length > 0 -%}
 #PRIV_CHANGE KEY
 {% for item in auditd_priv_change_key %}
--a always,exit -F path={{ item }} -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
+-a always,exit -F path={{ item }} -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
 {% endfor %}
 {% endif %}
 
@@ -65,7 +75,7 @@
 {% if auditd_privileged_passwd_key is defined and auditd_privileged_passwd_key | length > 0 -%}
 #PRIV_PASSWORD KEY
 {% for item in auditd_privileged_passwd_key %}
--a always,exit -F path={{ item }} -F auid>=1000 -F auid!=4294967295 -k privileged-passwd
+-a always,exit -F path={{ item }} -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-passwd
 {% endfor %}
 {% endif %}
 
@@ -88,35 +98,35 @@
 {% if auditd_privilged_mount_key is defined and auditd_privilged_mount_key | length > 0 -%}
 #PRIV MOUNT KEY
 {% for item in auditd_privilged_mount_key %}
--a always,exit -F path={{ item }} -F auid>=1000 -F auid!=4294967295 -k privileged-mount
+-a always,exit -F path={{ item }} -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-mount
 {% endfor %}
 {% endif %}
 
 {% if auditd_privilged_postfix_key is defined and auditd_privilged_postfix_key | length > 0 -%}
 #PRIV POSTFIX KEY
 {% for item in auditd_privilged_postfix_key %}
--a always,exit -F path={{ item }} -F auid>=1000 -F auid!=4294967295 -k privileged-postfix
+-a always,exit -F path={{ item }} -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-postfix
 {% endfor %}
 {% endif %}
 
 {% if auditd_privilged_ssh_key is defined and auditd_privilged_ssh_key | length > 0 -%}
 #PRIV SSH KEY
 {% for item in auditd_privilged_ssh_key %}
--a always,exit -F path={{ item }} -F auid>=1000 -F auid!=4294967295 -k privileged-ssh
+-a always,exit -F path={{ item }} -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-ssh
 {% endfor %}
 {% endif %}
 
 {% if auditd_privilged_cron_key is defined and auditd_privilged_cron_key | length > 0 -%}
 #PRIV CRON KEY
 {% for item in auditd_privilged_cron_key %}
--a always,exit -F path={{ item }} -F auid>=1000 -F auid!=4294967295 -k privileged-cron
+-a always,exit -F path={{ item }} -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-cron
 {% endfor %}
 {% endif %}
 
 {% if auditd_privilged_pam_key is defined and auditd_privilged_pam_key | length > 0 -%}
 #PRIV PAM KEY
 {% for item in auditd_privilged_pam_key %}
--a always,exit -F path={{ item }} -F auid>=1000 -F auid!=4294967295 -k privileged-pam
+-a always,exit -F path={{ item }} -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-pam
 {% endfor %}
 {% endif %}
 
@@ -124,7 +134,7 @@
 #PRIV MODULE CHANGE KEY
 {% for item in auditd_priviliged_module_change_key %}
 {% for arch in auditd_rules_arch %}
--a always,exit -F arch=b{{ arch }} -S {{ item }} -k module-change
+-a always,exit -F arch=b{{ arch }} -S {{ item }} -F auid>=1000 -F auid!=unset -k module-change
 {% endfor %}
 {% endfor %}
 {% endif %}
@@ -132,7 +142,7 @@
 {% if auditd_priviliged_module_watch_key is defined and auditd_priviliged_module_watch_key | length > 0 -%}
 #PRIV MODULE CHANGE WATCH KEY
 {% for item in auditd_priviliged_module_watch_key %}
--w {{ item }} -p x -F auid!=4294967295 -k module-change
+-a always,exit -F path={{ item }} -F perm=x -F auid>=1000 -F auid!=unset  -k module-change
 {% endfor %}
 {% endif %}
 

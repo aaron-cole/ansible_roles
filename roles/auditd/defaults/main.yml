@@ -10,6 +10,8 @@ auditd_config_file: /etc/audit/auditd.conf
 auditd_rules_buffer: "8192"
 auditd_rules_failure: "1"
 auditd_rules_backlog_wait_time: "60000"
+auditd_rules_loginuid_immutable: "loginuid-immutable"
+auditd_rules_rules_immutable: true
 auditd_rules_arch: ["32", "64"]
 auditd_rules_setuid_key: execve
 auditd_rules_setgid_key: execve

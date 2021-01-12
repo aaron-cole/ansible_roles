@@ -1,0 +1,65 @@
+## Sudo and Sudoers
+
+- name: Ensure sudo IS installed
+  package:
+    name: sudo
+    state: present
+  when:
+  - package_sudo_install | bool
+  
+- name: Ensure NOPASSWD not in sudoers
+  lineinfile:
+    path: /etc/sudoers
+    regexp: ^[^#].*NOPASSWD.*
+    state: absent
+    validate: '/usr/sbin/visudo -cf %s'
+  when:
+  - configure_sudoers_remove_nopasswd | bool
+
+- name: Collect all include config files for sudo NOPASSWD removal
+  find:
+    paths: /etc/sudoers.d/
+    contains: ^[^#]*NOPASSWD.*
+  register: sudoers_nopasswd_include_files
+  when:
+  - configure_sudoers_remove_nopasswd | bool
+
+- name: Remove all occurences of NOPASSWD from include config files of sudoers
+  lineinfile:
+    path: '{{ item.path }}'
+    regexp: ^[^#].*NOPASSWD.*
+    state: absent
+    validate: '/usr/sbin/visudo -cf %s'
+  loop: '{{ sudoers_nopasswd_include_files.files }}'
+  when:
+  - sudoers_nopasswd_include_files.matched > 0
+  - configure_sudoers_remove_nopasswd | bool
+  
+- name: Ensure !authenticate not in sudoers
+  lineinfile:
+    path: /etc/sudoers
+    regexp: ^[^#].*!authenticate.*
+    state: absent
+    validate: '/usr/sbin/visudo -cf %s'
+  when:
+  - configure_sudoers_remove_noauthenticate | bool
+  
+- name: Collect all include config files for sudo !authenticate removal
+  find:
+    paths: /etc/sudoers.d/
+    contains: ^[^#]*NOPASSWD.*
+  register: sudoers_noauthenticate_include_files
+  when:
+  - configure_sudoers_remove_noauthenticate | bool
+
+- name: Remove all occurences of !authenticate from include config files of sudoers
+  lineinfile:
+    path: '{{ item.path }}'
+    regexp: ^[^#].*!authenticate.*
+    state: absent
+    validate: '/usr/sbin/visudo -cf %s'
+  loop: '{{ sudoers_noauthenticate_include_files.files }}'
+  when:
+  - sudoers_noauthenticate_include_files.matched > 0
+  - configure_sudoers_remove_noauthenticate | bool
+  

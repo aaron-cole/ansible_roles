@@ -1,0 +1,22 @@
+## Installed packages
+
+- name: Ensure esc IS installed
+  package:
+    name: esc
+    state: present
+  when:
+  - package_esc_install | bool
+
+- name: Ensure openssl-pkcs11 IS installed
+  package:
+    name: openssl-pkcs11
+    state: present
+  when:
+  - package_openssl_pkcs11_install | bool
+
+- name: Ensure opensc IS installed
+  package:
+    name: opensc
+    state: present
+  when:
+  - package_opensc_install | bool

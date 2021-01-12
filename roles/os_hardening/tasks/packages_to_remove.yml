@@ -68,3 +68,10 @@
     state: absent
   when:
   - package_iprutils_remove | bool
+
+- name: Ensure xorg-x11-server-common is NOT installed
+  package:
+    name: xorg-x11-server-common
+    state: absent
+  when:
+  - package_xorg_x11_server_common_remove | bool

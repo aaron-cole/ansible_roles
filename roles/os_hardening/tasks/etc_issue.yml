@@ -1,0 +1,11 @@
+##Set Banner
+
+- name: Set /etc/issue
+  template:
+    src: etc_issue.j2
+    dest: /etc/issue
+    mode: 0644
+    owner: root
+    group: root
+  when:
+  - configure_etc_issue | bool

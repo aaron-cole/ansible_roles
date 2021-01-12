@@ -13,3 +13,13 @@
   service:
     state: restarted
     name: postfix    
+
+- name: Restart firewalld service
+  service:
+    state: restarted
+    name: firewalld   
+
+- name: Reload firewalld service
+  service:
+    state: reloaded
+    name: firewalld   

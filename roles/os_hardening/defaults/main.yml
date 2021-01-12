@@ -43,6 +43,7 @@ package_tftp_server_remove: true
 package_vsftpd_remove: true
 package_tuned_remove: true
 package_iprutils_remove: true
+package_xorg_x11_server_common_remove: true
 
 ##SELINUX
 harden_selinux: false
@@ -133,6 +134,8 @@ service_sshd_enabled: true
 configure_sshd_config_x11uselocalhost: true
 configure_sshd_config_x11forwarding: true
 configure_sshd_config_rekeylimit: true
+var_sshd_rekey_limit_size: 1G
+var_sshd_rekey_limit_time: 1h
 configure_sshd_config_printlastlog: true
 configure_sshd_config_permitemptypasswords: true
 configure_sshd_config_permituserenvironment: true
@@ -147,31 +150,148 @@ configure_sshd_config_clientalivecountmax: true
 configure_sshd_config_banner: true
 
 ##Postfix
-harden_postfix: true
+harden_postfix: false
 package_postfix_installed: true
 service_postfix_enabled: true
 configure_postfix_smtpd_client_restrictions: true
 
+##systemd settings
+harden_systemd: false
+require_singleuser_auth: true
+disable_ctrlaltdel_burstaction: true
+service_debug_shell_disable: true
+disable_ctrlaltdel_reboot: true
 
+##/etc/yum.repos.d settings
+harden_etc_yum_repos_d: false
+ensure_gpgcheck_never_disabled: true
 
+##/tmp mount options
+harden_tmp: false
+mount_option_tmp_noexec: true
+mount_option_tmp_nodev: true
+mount_option_tmp_nosuid: true
 
+##/dev/shm mount options
+harden_dev_shm: false
+mount_option_dev_shm_noexec: true
+mount_option_dev_shm_nodev: true
+mount_option_dev_shm_nosuid: true
 
+##/var/log mount options
+harden_var_log: false
+mount_option_var_log_noexec: true
+mount_option_var_log_nodev: true
+mount_option_var_log_nosuid: true
 
+##/var/log/audit mount options
+harden_var_log_audit: false
+mount_option_var_log_audit_noexec: true
+mount_option_var_log_audit_nodev: true
+mount_option_var_log_audit_nosuid: true
 
+##/var/tmp mount options
+harden_var_tmp: false
+mount_option_var_tmp_noexec: true
+mount_option_var_tmp_nodev: true
+mount_option_var_tmp_nosuid: true
 
+##/home mount options
+harden_home: false
+mount_option_home_noexec: true
+mount_option_home_nodev: true
+mount_option_home_nosuid: true
 
+##/boot mount options
+harden_boot: false
+mount_option_boot_nosuid: true
+mount_option_boot_nodev: true
 
+##local mount options nodev
+harden_local_mount_points: false
+mount_option_opt_nodev: true
+mount_option_usr_nodev: true
+mount_option_var_nodev: true
+mount_option_boot_efi_nodev: true
 
+##Kernel Options
+harden_kernel_options: false
+grub2_pti_argument: true
+grub2_vsyscall_argument: true
+grub2_slub_debug_argument: true
+grub2_page_poison_argument: true
 
+##UMASK
+harden_umask: false
+var_accounts_user_umask: "077"
+accounts_umask_etc_csh_cshrc: true
+accounts_umask_etc_profile: true
+accounts_umask_etc_bashrc: true
 
+##/etc/security/limits.conf
+harden_etc_security_limits_conf: false
+accounts_max_concurrent_login_sessions: true
+var_accounts_max_concurrent_login_sessions: "10"
 
+##/etc/security/pwquality.conf
+harden_etc_security_pwquality_conf: false
+accounts_password_pam_dcredit: true
+var_password_pam_dcredit: "-2"
+accounts_password_pam_maxclassrepeat: true
+var_password_pam_maxclassrepeat: "4"
+accounts_password_pam_ocredit: true
+var_password_pam_ocredit: "-2"
+accounts_password_pam_maxrepeat: true
+var_password_pam_maxrepeat: "3"
+accounts_password_pam_lcredit: true
+var_password_pam_lcredit: "-2"
+accounts_password_pam_difok: true
+var_password_pam_difok: "8"
+accounts_password_pam_minlen: true
+var_password_pam_minlen: "15"
+accounts_password_pam_ucredit: true
+var_password_pam_ucredit: "-2"
+accounts_password_pam_minclass: true
+var_password_pam_minclass: "4"
+accounts_password_pam_dictcheck: true
+var_password_pam_dictcheck: "1"
 
+##/etc/issue
+harden_etc_issue: false
+configure_etc_issue: true
+var_etc_issue_text: "insert banner text here"
 
+##/etc/ssh/ssh_config
+harden_ssh_client: false
+ssh_client_rekey_limit: true
+var_ssh_client_rekey_limit_size: 1G
+var_ssh_client_rekey_limit_time: 1h
 
+##Packages to install
+harden_install_packages: false
+package_esc_install: true
+package_openssl_pkcs11_install: true
+package_opensc_install: true
 
+##Sudo
+harden_sudo: false
+package_sudo_install: true
+configure_sudoers_remove_nopasswd: true
+configure_sudoers_remove_noauthenticate: true
 
+##SSHD Certs
+harden_sshd_certs: false
+configure_sshd_pub_cert: true
+configure_sshd_private_key: true
 
+##Disabled Services
+harden_disabled_services: false
+service_autofs_disabled: true
 
-
-
-
+##Firewalld
+harden_firewalld: true
+package_firewalld_install: true
+package_nftables_install: true
+service_firewalld_enabled: true
+configure_firewalld_backend: true
+firewalld_active_zone_drop: true

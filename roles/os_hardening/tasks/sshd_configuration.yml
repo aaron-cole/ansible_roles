@@ -38,7 +38,7 @@
   lineinfile:
     path: /etc/ssh/sshd_config
     regexp: ^RekeyLimit
-    line: RekeyLimit 1G 1h
+    line: RekeyLimit {{ var_sshd_rekey_limit_size }} {{ var_sshd_rekey_limit_time }}
     state: present
     insertbefore: ^[#\s]*Match
     validate: /usr/sbin/sshd -t -f %s

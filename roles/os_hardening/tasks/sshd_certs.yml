@@ -1,0 +1,40 @@
+## SSHD Certs
+
+- name: Collect all pub files for sshd
+  find:
+    paths: /etc/ssh/
+    patterns: '*.pub'
+  register: sshd_pub_cert_files
+  when:
+  - configure_sshd_pub_cert | bool
+  
+- name: Ensure sshd pub files have correct permissions
+  file:
+    name: '{{ item.path }}'
+    owner: root
+    group: root
+    mode: 0644
+  loop: '{{ sshd_pub_cert_files.files }}'
+  when:
+  - sshd_pub_cert_files.matched > 0
+  - configure_sshd_pub_cert | bool
+
+- name: Collect all private key files for sshd
+  find:
+    paths: /etc/ssh/
+    patterns: '*_key'
+  register: sshd_private_key_files
+  when:
+  - configure_sshd_private_key | bool
+  
+- name: Ensure sshd private key files have correct permissions
+  file:
+    name: '{{ item.path }}'
+    owner: root
+    group: ssh_keys
+    mode: 0640
+  loop: '{{ sshd_private_key_files.files }}'
+  when:
+  - sshd_private_key_files.matched > 0
+  - configure_sshd_private_key | bool  
+  

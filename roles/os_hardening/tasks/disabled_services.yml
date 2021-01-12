@@ -1,0 +1,17 @@
+##Disabled Services
+
+- name: Disable service autofs
+  block:
+  - name: Gather the package facts
+    package_facts:
+      manager: auto
+  - name: Enable service autofs
+    service:
+      name: autofs
+      enabled: 'no'
+      state: stopped
+    when:
+    - '"autofs" in ansible_facts.packages'
+  when:
+  - service_autofs_disabled | bool
+  

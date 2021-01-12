@@ -1,0 +1,12 @@
+## /etc/security/limits.conf
+
+- name: Limit the Number of Concurrent Login Sessions Allowed Per User
+  lineinfile:
+    state: present
+    dest: /etc/security/limits.conf
+    insertbefore: ^# End of file
+    regexp: ^#?\*.*maxlogins
+    line: '*           hard    maxlogins     {{ var_accounts_max_concurrent_login_sessions }}'
+    create: true
+  when:
+  - accounts_max_concurrent_login_sessions | bool

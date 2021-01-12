@@ -1,0 +1,11 @@
+##ssh client rekey limit
+
+- name: Ensure that rekey limit is set to {{ var_ssh_client_rekey_limit_size }} {{ var_ssh_client_rekey_limit_time }} in /etc/ssh/ssh_config
+  lineinfile:
+    path: /etc/ssh/ssh_config
+    create: true
+    regexp: ^\s*RekeyLimit.*$
+    line: RekeyLimit {{ var_ssh_client_rekey_limit_size }} {{ var_ssh_client_rekey_limit_time }}
+    state: present
+  when:
+  - ssh_client_rekey_limit | bool

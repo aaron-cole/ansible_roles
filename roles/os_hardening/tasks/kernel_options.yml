@@ -1,0 +1,65 @@
+## Kernel Options
+
+- name: get current kernel parameters
+  command: /usr/bin/grub2-editenv - list
+  register: kernelopts
+  changed_when: false
+  when:
+  - grub2_pti_argument | bool
+
+- name: Update the bootloader menu
+  command: /usr/bin/grub2-editenv - set "{{ item }} pti=on"
+  with_items: '{{ kernelopts.stdout_lines | select(''match'', ''^kernelopts.*'') | list }}'
+  when:
+  - kernelopts.stdout_lines is defined
+  - kernelopts.stdout_lines | length > 0
+  - kernelopts.stdout | regex_search('^kernelopts=(?:.*\s)?pti=on(?:\s.*)?$', multiline=True) is none
+  - grub2_pti_argument | bool
+
+- name: get current kernel parameters
+  command: /usr/bin/grub2-editenv - list
+  register: kernelopts
+  changed_when: false
+  when:
+  - grub2_vsyscall_argument | bool
+
+- name: Update the bootloader menu
+  command: /usr/bin/grub2-editenv - set "{{ item }} vsyscall=none"
+  with_items: '{{ kernelopts.stdout_lines | select(''match'', ''^kernelopts.*'') | list }}'
+  when:
+  - kernelopts.stdout_lines is defined
+  - kernelopts.stdout_lines | length > 0
+  - kernelopts.stdout | regex_search('^kernelopts=(?:.*\s)?vsyscall=none(?:\s.*)?$', multiline=True) is none
+  - grub2_vsyscall_argument | bool
+
+- name: get current kernel parameters
+  command: /usr/bin/grub2-editenv - list
+  register: kernelopts
+  changed_when: false
+  when:
+  - grub2_slub_debug_argument | bool
+
+- name: Update the bootloader menu
+  command: /usr/bin/grub2-editenv - set "{{ item }} slub_debug=P"
+  with_items: '{{ kernelopts.stdout_lines | select(''match'', ''^kernelopts.*'') | list }}'
+  when:
+  - kernelopts.stdout_lines is defined
+  - kernelopts.stdout_lines | length > 0
+  - kernelopts.stdout | regex_search('^kernelopts=(?:.*\s)?slub_debug=P(?:\s.*)?$', multiline=True) is none
+  - grub2_slub_debug_argument | bool
+
+- name: get current kernel parameters
+  command: /usr/bin/grub2-editenv - list
+  register: kernelopts
+  changed_when: false
+  when:
+  - grub2_page_poison_argument | bool
+
+- name: Update the bootloader menu
+  command: /usr/bin/grub2-editenv - set "{{ item }} page_poison=1"
+  with_items: '{{ kernelopts.stdout_lines | select(''match'', ''^kernelopts.*'') | list }}'
+  when:
+  - kernelopts.stdout_lines is defined
+  - kernelopts.stdout_lines | length > 0
+  - kernelopts.stdout | regex_search('^kernelopts=(?:.*\s)?page_poison=1(?:\s.*)?$', multiline=True) is none
+  - grub2_page_poison_argument | bool

@@ -58,6 +58,7 @@
     regexp: ^[^#].*core
     line: '*        hard       core      0'
     create: true
+    insertbefore: ^# End of file
   when:
   - disable_users_coredumps | bool
 

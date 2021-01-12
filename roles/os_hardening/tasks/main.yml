@@ -69,3 +69,108 @@
   include_tasks: "postfix.yml"
   when:
   - harden_postfix | bool
+
+- name: Systemd Settings
+  include_tasks: "systemd_settings.yml"
+  when:
+  - harden_systemd | bool
+
+- name: Yum Addtional Repositories
+  include_tasks: "etc_yum_repos_d.yml"
+  when:
+  - harden_etc_yum_repos_d | bool
+
+- name: /tmp mount options
+  include_tasks: "tmp_mount_options.yml"
+  when:
+  - harden_tmp | bool
+
+- name: /dev/shm mount options
+  include_tasks: "dev_shm_mount_options.yml"
+  when:
+  - harden_dev_shm | bool
+
+- name: /var/log mount options
+  include_tasks: "var_log_mount_options.yml"
+  when:
+  - harden_var_log | bool
+
+- name: /var/log/audit mount options
+  include_tasks: "var_log_audit_mount_options.yml"
+  when:
+  - harden_var_log_audit | bool
+
+- name: /var/tmp mount options
+  include_tasks: "var_tmp_mount_options.yml"
+  when:
+  - harden_var_tmp | bool
+
+- name: /home mount options
+  include_tasks: "home_mount_options.yml"
+  when:
+  - harden_home | bool
+
+- name: /boot mount options
+  include_tasks: "boot_mount_options.yml"
+  when:
+  - harden_boot | bool
+
+- name: Common local mount options
+  include_tasks: "common_local_mount_points_nodev.yml"
+  when:
+  - harden_local_mount_points | bool
+  
+- name: Kernel Options
+  include_tasks: "kernel_options.yml"
+  when:
+  - harden_kernel_options | bool
+
+- name: Umask in system initialization files
+  include_tasks: "umask.yml"
+  when:
+  - harden_umask | bool
+
+- name: /etc/security/limits.conf
+  include_tasks: "etc_security_limits_conf.yml"
+  when:
+  - harden_etc_security_limits_conf | bool
+
+- name: /etc/security/pwquality.conf
+  include_tasks: "etc_security_pwquality_conf.yml"
+  when:
+  - harden_etc_security_pwquality_conf | bool
+
+- name: /etc/issue
+  include_tasks: "etc_issue.yml"
+  when:
+  - harden_etc_issue | bool
+  
+- name: /etc/ssh/ssh_config
+  include_tasks: "etc_ssh_ssh_config.yml"
+  when:
+  - harden_ssh_client | bool
+
+- name: Packages to install
+  include_tasks: "packages_to_install.yml"
+  when:
+  - harden_install_packages | bool
+
+- name: Sudo and sudoers
+  include_tasks: "sudo.yml"
+  when:
+  - harden_sudo | bool
+
+- name: sshd certs
+  include_tasks: "sshd_certs.yml"
+  when:
+  - harden_sshd_certs | bool
+
+- name: Disabled Services
+  include_tasks: "disabled_services.yml"
+  when:
+  - harden_disabled_services | bool
+
+- name: Firewalld
+  include_tasks: "firewalld.yml"
+  when:
+  - harden_firewalld | bool

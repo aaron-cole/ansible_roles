@@ -5,6 +5,7 @@ auditd_service: auditd
 auditd_service_state: started
 auditd_service_enabled: "yes"
 auditd_config_file: /etc/audit/auditd.conf
+auditd_remove_all_files_in_rulesd: true
 
 # Auditd Rules
 auditd_rules_buffer: "8192"

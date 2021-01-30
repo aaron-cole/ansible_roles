@@ -20,6 +20,24 @@
   notify:
     - Restart auditd
 
+# Get list of file in /etc/audit/rules.d/
+- name: Get list of .rule files in /etc/audit/rules.d/
+  find:
+    paths: /etc/audit/rules.d/
+    patterns: "*.rules"
+  register: audit_rule_files_to_delete
+  when:
+  - auditd_remove_all_files_in_rulesd | bool
+
+- name: Remove all other files except for audit.rules in /etc/audit/rules.d/
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  with_items: "{{ audit_rule_files_to_delete.files }}"
+  when:
+  - item.path != "/etc/audit/rules.d/audit.rules"
+  - auditd_remove_all_files_in_rulesd | bool
+
 # /etc/audit/audit.rules
 - name: auditd | audit.rules
   template: 

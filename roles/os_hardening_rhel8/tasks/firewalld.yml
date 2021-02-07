@@ -1,0 +1,75 @@
+##Firewalld
+
+- name: Ensure Firewalld IS installed
+  package:
+    name: firewalld
+    state: present
+  when:
+  - package_firewalld_install | bool
+
+- name: Ensure nftables IS installed
+  package:
+    name: nftables
+    state: present
+  when:
+  - package_nftables_install | bool
+  
+- name: Enable service Firewalld
+  block:
+  - name: Gather the package facts
+    package_facts:
+      manager: auto
+  - name: Enable service firewalld
+    service:
+      name: firewalld
+      enabled: 'yes'
+      state: started
+    when:
+    - '"firewalld" in ansible_facts.packages'
+  when:
+  - service_firewalld_enabled | bool
+
+- name: Configure /etc/firewalld/firewalld.conf
+  block:
+  - name: FirewallBackend value in /etc/firewalld/firewalld.conf
+    lineinfile:
+      path: /etc/firewalld/firewalld.conf
+      create: false
+      regexp: ^FirewallBackend
+      line: FirewallBackend=nftables
+      state: present
+    notify:
+    - Restart firewalld service
+  when:
+  - configure_firewalld_backend | bool
+
+- name: get current active zones
+  shell: '/usr/bin/firewall-cmd --get-active-zones | grep -v "interfaces: "'
+  register: firewalld_active_zones
+  changed_when: false
+  failed_when: firewalld_active_zones.rc > 0
+  when:
+  - firewalld_active_zone_drop | bool
+
+- name: Set fact for active_zones
+  set_fact:
+    active_zones: "{{ firewalld_active_zones.stdout.split('\n') }}"
+  when:
+  - firewalld_active_zone_drop | bool
+
+- name: Get target for each active zone
+  shell: firewall-cmd --get-target --permanent --zone="{{ item }}"
+  with_items: "{{ active_zones }}"
+  changed_when: false
+  register: zone_target_output
+  when:
+  - firewalld_active_zone_drop | bool
+
+- name: Ensure active zones have target of "DROP"
+  command: firewall-cmd --permanent --zone="{{ item.item }}" --set-target=DROP
+  with_items: "{{ zone_target_output.results }}"
+  when:
+  - item.stdout != "DROP"
+  - firewalld_active_zone_drop | bool
+  notify:
+  - Reload Firewalld configuration

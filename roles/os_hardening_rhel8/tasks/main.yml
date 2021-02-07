@@ -1,5 +1,10 @@
 #Defaults
 
+- name: Crypto_Policies
+  include_tasks: "crypto_policies.yml"
+  when:
+  - harden_crypto_policies | bool
+  
 - name: tmux
   include_tasks: "tmux.yml"
   when:
@@ -174,3 +179,43 @@
   include_tasks: "firewalld.yml"
   when:
   - harden_firewalld | bool
+
+- name: Chrony
+  include_tasks: "chrony.yml"
+  when:
+  - harden_chrony | bool
+
+- name: /etc/default/useradd
+  include_tasks: "etc_default_useradd.yml"
+  when:
+  - harden_etc_default_useradd | bool
+
+- name: AIDE
+  include_tasks: "aide.yml"
+  when:
+  - harden_aide | bool
+
+- name: Rsyslog
+  include_tasks: "rsyslog.yml"
+  when:
+  - harden_rsyslog | bool
+
+- name: SSSD
+  include_tasks: "sssd.yml"
+  when:
+  - harden_sssd | bool   
+
+- name: fapolicyd
+  include_tasks: "fapolicyd.yml"
+  when:
+  - harden_fapolicyd | bool  
+
+- name: PAM Configuration
+  include_tasks: "pam.yml"
+  when:
+  - harden_pam | bool
+
+- name: Audit Configuration
+  include_tasks: "audit.yml"
+  when:
+  - harden_auditing | bool   

@@ -1,0 +1,102 @@
+##Packages
+- name: Ensure fipscheck is installed
+  package:
+    name: fipscheck
+    state: present
+  when:
+  - package_fipscheck_install | bool
+
+- name: Ensure gnutls is installed
+  package:
+    name: gnutls
+    state: present
+  when:
+  - package_gnutls_install | bool
+  
+##Set FIPS MODE
+- name: Retrieve fips_mode of system
+  command: cat /proc/sys/crypto/fips_enabled
+  register: fips_status
+  changed_when: false
+  when:
+  - enable_fips_mode | bool 
+
+- name: enable fips mode
+  command: /usr/bin/fips-mode-setup --enable
+  when:
+  - enable_fips_mode | bool
+  - fips_status.stdout != "1"
+
+##opensslcnf_config
+
+- name: Add .include for opensslcnf.config to crypto_policy section
+  lineinfile:
+    insertafter: ^\s*\[\s*crypto_policy\s*]\s*
+    line: .include /etc/crypto-policies/back-ends/opensslcnf.config
+    path: /etc/pki/tls/openssl.cnf
+  when:
+  - configure_openssl_crypto_policy | bool
+
+- name: Add MinProtocol to opensslcnf.config
+  ini_file:
+    option: MinProtocol
+    value: TLSv1.2
+    path: /etc/crypto-policies/back-ends/opensslcnf.config
+    section: 
+    no_extra_spaces: no
+  when:
+  - configure_openssl_crypto_policy | bool
+
+##gnutls.config
+- name: Disable old SSL/TLS versions in gnutls.config
+  lineinfile:
+    regexp: ^SYSTEM=
+    line: "{{ gnutls_crypto_line }}"
+    path: /etc/crypto-policies/back-ends/gnutls.config
+    backup: yes
+  when:
+  - configure_gnutls_library | bool
+  
+##opensshserver.config
+- name: Ensure OpenSSH Server uses system-wide policy
+  ini_file:
+    option: CRYPTO_POLICY
+    path: /etc/sysconfig/sshd
+    section: 
+    no_extra_spaces: yes
+    state: absent
+  when:
+  - configure_sshd_system_wide_policy | bool
+  
+- name: Set OpenSSH Server crypto_policy in /etc/crypto-policies/back-ends/opensshserver.config
+  lineinfile:
+    regexp: ^CRYPTO_POLICY=
+    line: "{{ opensshserver_crypto_policy }}"
+    path: /etc/crypto-policies/back-ends/opensshserver.config
+    backup: yes
+  when:
+  - configure_opensshserver_crypto_policy | bool
+
+##openssh.config
+- name: Set OpenSSH Ciphers in /etc/crypto-policies/back-ends/openssh.config
+  lineinfile:
+    regexp: "^Ciphers "
+    line: "{{ openssh_ciphers }}"
+    path: /etc/crypto-policies/back-ends/openssh.config
+    backup: yes
+  when:
+  - configure_openssh_ciphers | bool
+
+- name: Set OpenSSH MACs in /etc/crypto-policies/back-ends/openssh.config
+  lineinfile:
+    regexp: "^MACs "
+    line: "{{ openssh_macs }}"
+    path: /etc/crypto-policies/back-ends/openssh.config
+    backup: yes
+  when:
+  - configure_openssh_macs | bool
+  
+  
+  
+  
+  

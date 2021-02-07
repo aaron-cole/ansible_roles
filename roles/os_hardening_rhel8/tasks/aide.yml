@@ -1,0 +1,125 @@
+## Aide
+
+- name: Ensure Aide IS installed
+  package:
+    name: aide
+    state: present
+  when:
+  - package_aide_install | bool
+
+- name: Ensure Mailx IS installed
+  package:
+    name: mailx
+    state: present
+  when:
+  - package_mailx_install | bool
+ 
+##CRONJOB SETUP
+- name: Setup cronjob in /etc/crontab
+  cron:
+    name: "aide daily check"
+    state: present
+    cron_file: /etc/crontab
+    user: root
+    hour: 2
+    minute: 5
+    job: "/usr/sbin/aide --check | /bin/mail -s \"$HOSTNAME - Daily aide integrity check run\" {{ aide_email_address }}" 
+  when: 
+  - package_aide_install | bool
+  - configure_aide_cronjob | bool
+  - package_mailx_install | bool  
+
+## /etc/aide.conf
+- name: Add audit tools to aide.conf
+  blockinfile:
+    path: /etc/aide.conf
+    block: |
+      ##Verify Integrity of Audit Tools
+      /usr/sbin/auditctl p+i+n+u+g+s+b+acl+xattrs+sha512
+      /usr/sbin/auditd p+i+n+u+g+s+b+acl+xattrs+sha512
+      /usr/sbin/ausearch p+i+n+u+g+s+b+acl+xattrs+sha512
+      /usr/sbin/aureport p+i+n+u+g+s+b+acl+xattrs+sha512
+      /usr/sbin/autrace p+i+n+u+g+s+b+acl+xattrs+sha512
+      /usr/sbin/rsyslogd p+i+n+u+g+s+b+acl+xattrs+sha512
+      /usr/sbin/augenrules p+i+n+u+g+s+b+acl+xattrs+sha512
+  when: 
+  - package_aide_install | bool
+  - configure_aide_verify_audit_tools | bool
+
+## By default we only have to modify CONTENT to add xttrs and acl
+- name: Update CONTENT ITEM in /etc/aide.conf
+  lineinfile:
+    regexp: ^CONTENT = 
+    line: "CONTENT = sha512+ftype+acl+xattrs"
+    path: /etc/aide.conf
+  when:
+  - configure_aide_content_item | bool
+
+## AIDE DB setup 
+- name: Find out where the aide DB resides
+  block:
+  - name: Find DBDIR in /etc/aide.conf
+    shell: grep "define DBDIR " /etc/aide.conf | cut -f 3 -d " "
+    changed_when: false
+    register: aide_db_directory
+  - name: Find DB file name in /etc/aide.conf
+    shell: grep "^database=file" /etc/aide.conf | cut -f2 -d "/"
+    changed_when: false
+    register: aide_database_file
+  - name: Find NEW DB file name in /etc/aide.conf
+    shell: grep "^database_out=file" /etc/aide.conf | cut -f2 -d "/"
+    changed_when: false
+    register: aide_new_database_file
+  - name: Set Fact of location of aide_database
+    set_fact:
+      aide_database: "{{ aide_db_directory.stdout }}/{{ aide_database_file.stdout }}"
+  - name: Set Fact of New DB Location
+    set_fact:
+       aide_new_database: "{{ aide_db_directory.stdout }}/{{ aide_new_database_file.stdout }}"
+  when:
+  - package_aide_install | bool
+  - create_aide_database | bool
+  
+- name: Check to see if the real database exists
+  stat:
+    path: "{{ aide_database }}"
+  register: aide_database_exists
+  when:
+  - package_aide_install | bool
+  - create_aide_database | bool
+
+- name: Check to see if the new database exists
+  stat:
+    path: "{{ aide_new_database }}"
+  register: aide_new_database_exists
+  when:
+  - package_aide_install | bool
+  - create_aide_database | bool
+ 
+- name: Create the New database if it doesn't exist
+  command: /usr/sbin/aide --init
+  when:
+  - package_aide_install | bool
+  - create_aide_database | bool
+  - not aide_new_database_exists.stat.exists
+  - not aide_database_exists.stat.exists
+
+- name: Check for new database existance and move if necessary
+  block:
+  - name: See if the new database exists now
+    stat:
+      path: "{{ aide_new_database }}"
+    register: aide_new_database_exists
+    when:
+    - create_aide_database | bool
+    
+  - name: Move the database over
+    command: "mv {{ aide_new_database }} {{ aide_database }}"
+    when:
+    - not aide_database_exists.stat.exists
+    - aide_new_database_exists.stat.exists
+  when:
+  - package_aide_install | bool
+  - create_aide_database | bool
+  
+

@@ -1,0 +1,11 @@
+##/etc/default/useradd
+
+- name: Set default useradd inactivity 
+  ini_file:
+    option: INACTIVE
+    value: "{{ value_useradd_inactive }}"
+    path: /etc/default/useradd
+    section: 
+    no_extra_spaces: yes
+  when:
+  - configure_etc_default_useradd | bool

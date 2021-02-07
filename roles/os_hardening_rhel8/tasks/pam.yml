@@ -1,0 +1,245 @@
+##PAM
+
+- name: /etc/pam.d/postlogin - pam_lastlog
+  block:
+  - name: update Session-optional
+    pamd:
+      name: postlogin
+      type: session
+      control: optional
+      module_path: pam_lastlog.so
+      new_control: required
+      module_arguments: 'showfailed'
+      state: updated
+  - name: Ensure only "showfailed" option
+    pamd:
+      name: postlogin
+      type: session
+      control: required
+      module_path: pam_lastlog.so
+      module_arguments: 'showfailed'
+      state: updated
+  - name: Ensure only "showfailed" option on default=1
+    pamd:
+      name: postlogin
+      type: session
+      control: '[default=1]'
+      module_path: pam_lastlog.so
+      module_arguments: 'showfailed'
+      state: updated
+  when:
+  - configure_pam_postlogin_lastlog | bool
+
+- name: PAM Add rounds=5000 and sha512 to system-auth and password-auth
+  pamd:
+    name: "{{ item.name }}"
+    type: password
+    control: "{{ item.control }}"
+    module_path: pam_unix.so
+    module_arguments: 'rounds=5000 sha512'
+    state: args_present
+  with_items:
+  - { name: "system-auth", control: "required" }
+  - { name: "system-auth", control: "requisite" }
+  - { name: "system-auth", control: "sufficient" }
+  - { name: "system-auth", control: "optional" }
+  - { name: "password-auth", control: "required" }
+  - { name: "password-auth", control: "requisite" }
+  - { name: "password-auth", control: "sufficient" }
+  - { name: "password-auth", control: "optional" }
+  when:
+  - configure_pam_rounds_pam_unix | bool
+
+- name: PAM remove nullok from unix.so in system-auth and password-auth
+  pamd:
+    name: "{{ item.name }}"
+    type: "{{ item.type }}"
+    control: "{{ item.control }}"
+    module_path: pam_unix.so
+    module_arguments: 'nullok'
+    state: args_absent
+  with_items:
+  - { name: "system-auth", type: "password", control: "required" }
+  - { name: "system-auth", type: "password", control: "requisite" }
+  - { name: "system-auth", type: "password", control: "sufficient" }
+  - { name: "system-auth", type: "password", control: "optional" }
+  - { name: "password-auth", type: "password", control: "required" }
+  - { name: "password-auth", type: "password", control: "requisite" }
+  - { name: "password-auth", type: "password", control: "sufficient" }
+  - { name: "password-auth", type: "password", control: "optional" }
+  - { name: "system-auth", type: "auth", control: "required" }
+  - { name: "system-auth", type: "auth", control: "requisite" }
+  - { name: "system-auth", type: "auth", control: "sufficient" }
+  - { name: "system-auth", type: "auth", control: "optional" }
+  - { name: "password-auth", type: "auth", control: "required" }
+  - { name: "password-auth", type: "auth", control: "requisite" }
+  - { name: "password-auth", type: "auth", control: "sufficient" }
+  - { name: "password-auth", type: "auth", control: "optional" }
+  when:
+  - configure_pam_nullok_pam_unix | bool
+
+- name: PAM Add remember to pwhistory.so in system-auth and password-auth
+  block:
+  - name: Add pwhistory.so line if not there
+    pamd:
+      name: "{{ item.name }}"
+      type: password
+      control: "{{ item.control }}"
+      module_path: pam_pwquality.so
+      new_type: password
+      new_control: required
+      new_module_path: pam_pwhistory.so
+      state: after
+    with_items:
+    - { name: "system-auth", control: "required" }
+    - { name: "system-auth", control: "requisite" }
+    - { name: "system-auth", control: "sufficient" }
+    - { name: "system-auth", control: "optional" }
+    - { name: "password-auth", control: "required" }
+    - { name: "password-auth", control: "requisite" }
+    - { name: "password-auth", control: "sufficient" }
+    - { name: "password-auth", control: "optional" }
+  - name: Add options to pwhistory.so if not there
+    pamd:
+      name: "{{ item.name }}"
+      type: password
+      control: "{{ item.control }}"
+      module_path: pam_pwhistory.so
+      module_arguments: 'use_authtok remember=5 retry=3'
+      state: args_present
+    with_items:
+    - { name: "system-auth", control: "required" }
+    - { name: "system-auth", control: "requisite" }
+    - { name: "password-auth", control: "required" }
+    - { name: "password-auth", control: "requisite" }      
+  when:
+  - configure_pam_pwhistory | bool
+
+- name: PAM Add options to pwquality.so in system-auth and password-auth
+  pamd:
+    name: "{{ item.name }}"
+    type: password
+    control: "{{ item.control }}"
+    module_path: pam_pwquality.so
+    module_arguments: 'try_first_pass local_users_only retry=3'
+    state: updated
+  with_items:
+  - { name: "system-auth", control: "required" }
+  - { name: "system-auth", control: "requisite" }
+  - { name: "password-auth", control: "required" }
+  - { name: "password-auth", control: "requisite" }      
+  when:
+  - configure_pam_pwquality | bool
+
+- name: PAM add faillock.so preauth to system-auth and password-auth
+  block:
+  - name: Add the faillock.so preauth line
+    pamd:
+      name: "{{ item.name }}"
+      type: auth
+      control: "{{ item.control }}"
+      module_path: pam_env.so
+      new_type: auth
+      new_control: required
+      new_module_path: pam_faillock.so
+      state: after
+    with_items:
+    - { name: "system-auth", control: "required" }
+    - { name: "system-auth", control: "requisite" }
+    - { name: "system-auth", control: "sufficient" }
+    - { name: "system-auth", control: "optional" }
+    - { name: "password-auth", control: "required" }
+    - { name: "password-auth", control: "requisite" }
+    - { name: "password-auth", control: "sufficient" }
+    - { name: "password-auth", control: "optional" }
+  - name: Add faillock.so preauth option
+    pamd:
+      name: "{{ item.name }}"
+      type: auth
+      control: required
+      module_path: pam_faillock.so
+      module_arguments: 'preauth'
+      state: args_present
+    with_items:
+    - { name: "system-auth" }
+    - { name: "password-auth" }
+  when:
+  - configure_pam_faillock_preauth | bool
+  
+- name: PAM add faillock.so authfail to system-auth and password-auth
+  block:
+  - name: Add the faillock.so authfail line
+    pamd:
+      name: "{{ item.name }}"
+      type: auth
+      control: "{{ item.control }}"
+      module_path: pam_deny.so
+      new_type: auth
+      new_control: '[default=die]'
+      new_module_path: pam_faillock.so
+      state: before
+    with_items:
+    - { name: "system-auth", control: "required" }
+    - { name: "system-auth", control: "requisite" }
+    - { name: "system-auth", control: "sufficient" }
+    - { name: "system-auth", control: "optional" }
+    - { name: "password-auth", control: "required" }
+    - { name: "password-auth", control: "requisite" }
+    - { name: "password-auth", control: "sufficient" }
+    - { name: "password-auth", control: "optional" }
+  - name: Add faillock.so authfail option
+    pamd:
+      name: "{{ item.name }}"
+      type: auth
+      control: '[default=die]'
+      module_path: pam_faillock.so
+      module_arguments: 'authfail'
+      state: args_present
+    with_items:
+    - { name: "system-auth" }
+    - { name: "password-auth" }
+  when:
+  - configure_pam_faillock_authfail | bool
+
+- name: PAM add faillock.so account to system-auth and password-auth
+  pamd:
+    name: "{{ item.name }}"
+    type: account
+    control: "{{ item.control }}"
+    module_path: pam_unix.so
+    new_type: account
+    new_control: required
+    new_module_path: pam_faillock.so
+    state: before
+  with_items:
+  - { name: "system-auth", control: "required" }
+  - { name: "system-auth", control: "requisite" }
+  - { name: "system-auth", control: "sufficient" }
+  - { name: "system-auth", control: "optional" }
+  - { name: "password-auth", control: "required" }
+  - { name: "password-auth", control: "requisite" }
+  - { name: "password-auth", control: "sufficient" }
+  - { name: "password-auth", control: "optional" }
+  when:
+  - configure_pam_faillock_account | bool
+  
+## /etc/security/faillock.conf
+- name: Configure /etc/security/faillock.conf
+  lineinfile:
+    path: /etc/security/faillock.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    insertafter: "#### RULES ####"
+  with_items:
+  - { regexp: "^#?.*deny =", line: "deny = 3" } 
+  - { regexp: "^#?.*fail_interval =", line: "fail_interval = 900" } 
+  - { regexp: "^#? unlock_time =", line: "unlock_time = 0" }
+  - { regexp: "^#?.*silent", line: "silent" }
+  - { regexp: "^#?.*audit", line: "audit" }
+  - { regexp: "^#?.*even_deny_root", line: "even_deny_root" }
+  - { regexp: "^#?.*dir =", line: "dir = {{ faillock_dir_records }}" }
+  - { regexp: "^#?.*root_unlock_time =", line: "root_unlock_time = 900" }
+  when:
+  - configure_etc_security_faillock_conf  | bool
+  
+  

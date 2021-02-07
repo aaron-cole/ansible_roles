@@ -34,3 +34,14 @@
   - configure_postfix_smtpd_client_restrictions | bool
   notify:
     - Restart postfix service
+
+- name: Set postmaster in /etc/aliases
+  lineinfile:
+    regexp: "^postmaster:"
+    line: "postmaster:\troot"
+    path: /etc/aliases
+  when:
+  - configure_postmaster_etc_aliases | bool
+  notify:
+    - new aliases
+  

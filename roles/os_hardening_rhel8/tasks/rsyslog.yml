@@ -1,0 +1,58 @@
+##RSYSLOG
+
+- name: Ensure Rsyslog IS installed
+  package:
+    name: rsyslog
+    state: present
+  when:
+  - package_rsyslog_install | bool
+  
+- name: Enable service rsyslog service
+  block:
+  - name: Gather the package facts
+    package_facts:
+      manager: auto
+  - name: Enable service rsyslog
+    service:
+      name: rsyslog
+      enabled: 'yes'
+      state: started
+    when:
+    - '"rsyslog" in ansible_facts.packages'
+  when:
+  - service_rsyslog_enabled | bool
+  
+## /etc/rsyslog.conf
+
+- name: Ensure Cron and all facilities goto /var/log/cron
+  lineinfile:
+    path: /etc/rsyslog.conf
+    regexp: /var/log/cron 
+    line: "cron.*\t\t\t\t\t\t\t/var/log/cron"
+    insertafter: "#### RULES ####"
+  when:
+  - configure_rsyslog_log_all_cron_facilities | bool
+  notify:
+    - Restart rsyslog  
+
+- name: Ensure authentication logs goto /var/log/secure
+  lineinfile:
+    path: /etc/rsyslog.conf
+    regexp: /var/log/secure 
+    line: "auth.*,authpriv.*,daemon.*\t\t\t\t/var/log/secure"
+    insertafter: "#### RULES ####"
+  when:
+  - configure_rsyslog_log_all_auth_facilities | bool
+  notify:
+    - Restart rsyslog
+
+- name: Ensure logs are being offloaded
+  lineinfile:
+    path: /etc/rsyslog.conf
+    regexp: ^\*.\* \@
+    line: "*.* {{ rsyslog_remote_type }}{{ rsyslog_remote_server_port }}"
+  when:
+  - configure_rsyslog_remote_offloading | bool
+  notify:
+    - Restart rsyslog
+    

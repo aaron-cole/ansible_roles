@@ -1,0 +1,56 @@
+## SSSD
+
+- name: Ensure sssd is installed
+  package: 
+    name: sssd
+    state: present
+  when:
+  - package_sssd_installation | bool
+
+- name: Ensure sssd-tools is installed required for file validation
+  package: 
+    name: sssd-tools
+    state: present
+  when:
+  - package_sssd_tools_installation | bool
+  
+- name: Enable service sssd service
+  block:
+  - name: Gather the package facts
+    package_facts:
+      manager: auto
+  - name: Enable service sssd
+    service:
+      name: sssd
+      enabled: 'yes'
+      state: started
+    when:
+    - '"sssd" in ansible_facts.packages'
+    - '"sssd-tools" in ansible_facts.packages'
+  when:
+  - service_sssd_enabled | bool
+  
+##sssd.conf
+- name: Add cache credentials to sssd.conf
+  ini_file:
+    option: offline_credentials_expiration
+    value: "1"
+    path: /etc/sssd/sssd.conf
+    section: pam
+    create: yes
+  when:
+  - configure_sssd_offline_cache_credentials_expiration | bool
+  notify:
+    - Restart sssd
+
+- name: Add certificate_verification to sssd.conf
+  ini_file:
+    option: certificate_verification
+    value: ocsp_dgst=sha1
+    path: /etc/sssd/sssd.conf
+    section: sssd
+    create: yes
+  when:
+  - configure_sssd_certificate_verification | bool
+  notify:
+    - Restart sssd

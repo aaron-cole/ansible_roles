@@ -1,0 +1,396 @@
+##Audit
+
+- name: Ensure audit IS installed
+  package:
+    name: audit
+    state: present
+  when:
+  - package_audit_install | bool
+  
+- name: Enable service auditd service
+  block:
+  - name: Gather the package facts
+    package_facts:
+      manager: auto
+  - name: Enable service auditd
+    service:
+      name: auditd
+      enabled: 'yes'
+      state: started
+    when:
+    - '"audit" in ansible_facts.packages'
+  when:
+  - service_auditd_enabled | bool
+
+- name: Audit grub parameter
+  block:
+  - name: Get kernel options
+    command: /usr/bin/grub2-editenv - list
+    register: kernelopts
+    changed_when: false
+  - name: Update the bootloader menu
+    command: /usr/bin/grub2-editenv - set "{{ item }} audit=1"
+    with_items: '{{ kernelopts.stdout_lines | select(''match'', ''^kernelopts.*'') | list }}'
+    when:
+    - kernelopts.stdout_lines is defined
+    - kernelopts.stdout_lines | length > 0
+    - kernelopts.stdout | regex_search('^kernelopts=(?:.*\s)?audit=1(?:\s.*)?$', multiline=True) is none    
+  when:
+  - grub2_audit | bool
+  
+- name: Audit_backlog_limit grub parameter
+  block:
+  - name: Get kernel options
+    command: /usr/bin/grub2-editenv - list
+    register: kernelopts
+    changed_when: false
+  - name: Update the bootloader menu
+    command: /usr/bin/grub2-editenv - set "{{ item }} audit_backlog_limit=8192"
+    with_items: '{{ kernelopts.stdout_lines | select(''match'', ''^kernelopts.*'') | list }}'
+    when:
+    - kernelopts.stdout_lines is defined
+    - kernelopts.stdout_lines | length > 0
+    - kernelopts.stdout | regex_search('^kernelopts=(?:.*\s)?audit_backlog_limit=8192(?:\s.*)?$', multiline=True) is none    
+  when:
+  - grub2_audit_backlog_limit | bool
+
+## Auditd.conf
+- name: Configure Permissions for /etc/audit/auditd.conf
+  file:
+    path: /etc/audit/auditd.conf
+    owner: root
+    group: root
+    mode: '0600'
+  when:
+  - configure_etc_audit_auditd_conf_permissions | bool
+  
+- name: Configure action_mail_acct in auditd.conf
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: "action_mail_acct ="
+    line: "action_mail_acct = {{ var_action_mail_acct }}"
+  when:
+  - configure_auditd_conf_action_mail_acct | bool
+  notify:
+    - Restart auditd
+
+- name: Configure disk_error_action in auditd.conf
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: "disk_error_action ="
+    line: "disk_error_action = {{ var_disk_error_action }}"
+  when:
+  - configure_auditd_conf_disk_error_action | bool
+  notify:
+    - Restart auditd
+    
+- name: Configure max_log_file_action in auditd.conf
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: "max_log_file_action ="
+    line: "max_log_file_action = {{ var_max_log_file_action }}"
+  when:
+  - configure_auditd_conf_max_log_file_action | bool
+  notify:
+    - Restart auditd   
+
+- name: Configure disk_full_action in auditd.conf
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: "disk_full_action ="
+    line: "disk_full_action = {{ var_disk_full_action }}"
+  when:
+  - configure_auditd_conf_disk_full_action | bool
+  notify:
+    - Restart auditd 
+
+- name: Configure local_events in auditd.conf
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: "local_events ="
+    line: "local_events = {{ var_local_events }}"
+  when:
+  - configure_auditd_conf_local_events | bool
+  notify:
+    - Restart auditd  
+
+- name: Configure name_format in auditd.conf
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: "name_format ="
+    line: "name_format = {{ var_name_format }}"
+  when:
+  - configure_auditd_conf_name_format | bool
+  notify:
+    - Restart auditd     
+
+- name: Configure log_format in auditd.conf
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: "log_format ="
+    line: "log_format = {{ var_log_format }}"
+  when:
+  - configure_auditd_conf_log_format | bool
+  notify:
+    - Restart auditd 
+
+- name: Configure overflow_action in auditd.conf
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: "overflow_action ="
+    line: "overflow_action = {{ var_overflow_action }}"
+  when:
+  - configure_auditd_conf_overflow_action | bool
+  notify:
+    - Restart auditd 
+
+- name: Configure space_left in auditd.conf
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: "^space_left ="
+    line: "space_left = {{ var_space_left }}"
+  when:
+  - configure_auditd_conf_space_left | bool
+  notify:
+    - Restart auditd 
+
+- name: Configure space_left_action in auditd.conf
+  lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: "^space_left_action ="
+    line: "space_left_action = {{ var_space_left_action }}"
+  when:
+  - configure_auditd_conf_space_left_action | bool
+  notify:
+    - Restart auditd 
+
+## Permissions
+- name: Find and Set permissions on audit.log file
+  block:
+  - name: Get audit.log location for /etc/audit/auditd.conf
+    shell: grep "^log_file =" /etc/audit/auditd.conf | awk '{print $3}'
+    changed_when: false
+    register: auditd_conf_log_file_location
+  - name: Set Fact of location of audit.log
+    set_fact:
+      audit_log_file: "{{ auditd_conf_log_file_location.stdout }}"
+  - name: Set Fact of directory of audit_log_file
+    set_fact:
+      audit_log_directory: "{{ audit_log_file | dirname }}"
+  - name: Set audit log file Permissions
+    file:
+      path: "{{ audit_log_file }}"
+      owner: root
+      group: root
+      mode: '0600'
+  - name: Set audit log file directory Permissions
+    file:
+      path: "{{ audit_log_directory }}"
+      owner: root
+      group: root
+      state: directory
+      mode: '0700'
+  when:
+  - configure_permissions_audit_log_file | bool
+    
+## Audit Rules
+- name: Add audit rules
+  lineinfile:
+    path: /etc/audit/rules.d/audit.rules
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+  - { regexp: ".*arch=b32.*-S execve.*-C uid!=", line: "-a always,exit -F arch=b32 -S execve -C uid!=euid -F euid=0 -k setuid" } 
+  - { regexp: ".*arch=b64.*-S execve.*-C uid!=", line: "-a always,exit -F arch=b64 -S execve -C uid!=euid -F euid=0 -k setuid" }
+  - { regexp: ".*arch=b32.*-S execve.*-C gid!=", line: "-a always,exit -F arch=b32 -S execve -C gid!=egid -F egid=0 -k setgid" } 
+  - { regexp: ".*arch=b64.*-S execve.*-C gid!=", line: "-a always,exit -F arch=b64 -S execve -C gid!=egid -F egid=0 -k setgid" }
+  - { regexp: "^-w /etc/shadow", line: "-w /etc/shadow -p wa -k identity" }
+  - { regexp: "^-w /etc/security/opasswd", line: "-w /etc/security/opasswd -p wa -k identity" }
+  - { regexp: "^-w /etc/passwd", line: "-w /etc/passwd -p wa -k identity" }  
+  - { regexp: "^-w /etc/gshadow", line: "-w /etc/gshadow -p wa -k identity" }
+  - { regexp: "^-w /etc/group", line: "-w /etc/group -p wa -k identity" }
+  - { regexp: "^-w /etc/sudoers ", line: "-w /etc/sudoers -p wa -k privileged-actions" }
+  - { regexp: "^-w /etc/sudoers.d/", line: "-w /etc/sudoers.d/ -p wa -k privileged-actions" }
+  - { regexp: "^-w /var/log/lastlog ", line: "-w /var/log/lastlog -p wa -k logins" }
+  - { regexp: "^-a always,exit.*-F path=/usr/bin/su ", line: "-a always,exit -F path=/usr/bin/su -F perm=x -F auid>=1000 -F auid!=unset -k privileged-priv_change" }
+  - { regexp: "^-a always,exit.*-F path=/usr/bin/chage ", line: "-a always,exit -F path=/usr/bin/chage -F perm=x -F auid>=1000 -F auid!=unset -k privileged-priv_change" }
+  - { regexp: "^-a always,exit.*-F path=/usr/bin/chcon ", line: "-a always,exit -F path=/usr/bin/chcon -F perm=x -F auid>=1000 -F auid!=unset -k privileged-priv_change" }
+  - { regexp: "^-a always,exit.*-F path=/usr/bin/ssh-agent ", line: "-a always,exit -F path=/usr/bin/ssh-agent -F perm=x -F auid>=1000 -F auid!=unset -k privileged-ssh" }
+  - { regexp: "^-a always,exit.*-F path=/usr/bin/passwd ", line: "-a always,exit -F path=/usr/bin/passwd -F perm=x -F auid>=1000 -F auid!=unset -k privileged-priv_change" }
+  - { regexp: "^-a always,exit.*-F path=/usr/bin/mount ", line: "-a always,exit -F path=/usr/bin/mount -F perm=x -F auid>=1000 -F auid!=unset -k privileged-mount" }
+  - { regexp: "^-a always,exit.*-F path=/usr/bin/umount ", line: "-a always,exit -F path=/usr/bin/umount -F perm=x -F auid>=1000 -F auid!=unset -k privileged-mount" }
+  - { regexp: "^-a always,exit.*-F path=/usr/sbin/unix_update ", line: "-a always,exit -F path=/usr/sbin/unix_update -F perm=x -F auid>=1000 -F auid!=unset -k privileged-priv_change" }
+  - { regexp: "^-a always,exit.*-F path=/usr/sbin/postdrop ", line: "-a always,exit -F path=/usr/sbin/postdrop -F perm=x -F auid>=1000 -F auid!=unset -k privileged-postfix" }
+  - { regexp: "^-a always,exit.*-F path=/usr/sbin/postqueue ", line: "-a always,exit -F path=/usr/sbin/postqueue -F perm=x -F auid>=1000 -F auid!=unset -k privileged-postfix" }
+  - { regexp: "^-a always,exit.*-F path=/usr/sbin/semanage ", line: "-a always,exit -F path=/usr/sbin/semanage -F perm=x -F auid>=1000 -F auid!=unset -k privileged-priv_change" }
+  - { regexp: "^-a always,exit.*-F path=/usr/sbin/setfiles ", line: "-a always,exit -F path=/usr/sbin/setfiles -F perm=x -F auid>=1000 -F auid!=unset -k privileged-priv_change" }
+  - { regexp: "^-a always,exit.*-F path=/usr/sbin/userhelper ", line: "-a always,exit -F path=/usr/sbin/userhelper -F perm=x -F auid>=1000 -F auid!=unset -k privileged-passwd" }
+  - { regexp: "^-a always,exit.*-F path=/usr/sbin/setsebool ", line: "-a always,exit -F path=/usr/sbin/setsebool -F perm=x -F auid>=1000 -F auid!=unset -k privileged-priv_change" }
+  - { regexp: "^-a always,exit.*-F path=/usr/sbin/unix_chkpwd ", line: "-a always,exit -F path=/usr/sbin/unix_chkpwd -F perm=x -F auid>=1000 -F auid!=unset -k privileged-priv_change" }
+  - { regexp: "^-a always,exit.*-F path=/usr/libexec/openssh/ssh-keysign ", line: "-a always,exit -F path=/usr/libexec/openssh/ssh-keysign -F perm=x -F auid>=1000 -F auid!=unset -k privileged-ssh" }
+  - { regexp: "^-a always,exit.*-F path=/usr/bin/setfacl ", line: "-a always,exit -F path=/usr/bin/setfacl -F perm=x -F auid>=1000 -F auid!=unset -k privileged-priv_change" }
+  - { regexp: "^-a always,exit.*-F path=/usr/sbin/pam_timestamp_check ", line: "-a always,exit -F path=/usr/sbin/pam_timestamp_check -F perm=x -F auid>=1000 -F auid!=unset -k privileged-pam" }
+  - { regexp: "^-a always,exit.*-F path=/usr/bin/newgrp ", line: "-a always,exit -F path=/usr/bin/newgrp -F perm=x -F auid>=1000 -F auid!=unset -k privileged-priv_change" }
+  - { regexp: "^-a always,exit.*-F path=/usr/bin/gpasswd ", line: "-a always,exit -F path=/usr/bin/gpasswd -F perm=x -F auid>=1000 -F auid!=unset -k privileged-priv_change" }
+  - { regexp: "^-a always,exit.*-F path=/usr/bin/crontab ", line: "-a always,exit -F path=/usr/bin/crontab -F perm=x -F auid>=1000 -F auid!=unset -k privileged-cron" }
+  - { regexp: "^-a always,exit.*-F path=/usr/bin/chsh ", line: "-a always,exit -F path=/usr/bin/chsh -F perm=x -F auid>=1000 -F auid!=unset -k privileged-priv_change" }
+  - { regexp: "^-a always,exit.*-F path=/usr/bin/sudo ", line: "-a always,exit -F path=/usr/bin/sudo -F perm=x -F auid>=1000 -F auid!=unset -k privileged-priv_change" }
+  - { regexp: "^-a always,exit.*-F path=/usr/sbin/usermod ", line: "-a always,exit -F path=/usr/sbin/usermod -F perm=x -F auid>=1000 -F auid!=unset -k privileged-priv_change" }
+  - { regexp: "^-a always,exit.*-F path=/usr/bin/chacl ", line: "-a always,exit -F path=/usr/bin/chacl -F perm=x -F auid>=1000 -F auid!=unset -k privileged-priv_change" }
+  - { regexp: "^-a always,exit.*-F path=/usr/bin/kmod ", line: "-a always,exit -F path=/usr/bin/kmod -F perm=x -F auid>=1000 -F auid!=unset -k module-change" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S lremovexattr -F auid>=", line: "-a always,exit -F arch=b32 -S lremovexattr -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S lremovexattr -F auid>=", line: "-a always,exit -F arch=b64 -S lremovexattr -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S lremovexattr -F auid=0", line: "-a always,exit -F arch=b32 -S lremovexattr -F auid=0 -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S lremovexattr -F auid=0", line: "-a always,exit -F arch=b64 -S lremovexattr -F auid=0 -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S removexattr -F auid>=", line: "-a always,exit -F arch=b32 -S removexattr -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S removexattr -F auid>=", line: "-a always,exit -F arch=b64 -S removexattr -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S removexattr -F auid=0", line: "-a always,exit -F arch=b32 -S removexattr -F auid=0 -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S removexattr -F auid=0", line: "-a always,exit -F arch=b64 -S removexattr -F auid=0 -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S lsetxattr -F auid>=", line: "-a always,exit -F arch=b32 -S lsetxattr -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S lsetxattr -F auid>=", line: "-a always,exit -F arch=b64 -S lsetxattr -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S lsetxattr -F auid=0", line: "-a always,exit -F arch=b32 -S lsetxattr -F auid=0 -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S lsetxattr -F auid=0", line: "-a always,exit -F arch=b64 -S lsetxattr -F auid=0 -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S fsetxattr -F auid>=", line: "-a always,exit -F arch=b32 -S fsetxattr -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S fsetxattr -F auid>=", line: "-a always,exit -F arch=b64 -S fsetxattr -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S fsetxattr -F auid=0", line: "-a always,exit -F arch=b32 -S fsetxattr -F auid=0 -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S fsetxattr -F auid=0", line: "-a always,exit -F arch=b64 -S fsetxattr -F auid=0 -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S fremovexattr -F auid>=", line: "-a always,exit -F arch=b32 -S fremovexattr -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S fremovexattr -F auid>=", line: "-a always,exit -F arch=b64 -S fremovexattr -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S fremovexattr -F auid=0", line: "-a always,exit -F arch=b32 -S fremovexattr -F auid=0 -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S fremovexattr -F auid=0", line: "-a always,exit -F arch=b64 -S fremovexattr -F auid=0 -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S setxattr -F auid>=", line: "-a always,exit -F arch=b32 -S setxattr -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S setxattr -F auid>=", line: "-a always,exit -F arch=b64 -S setxattr -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S setxattr -F auid=0", line: "-a always,exit -F arch=b32 -S setxattr -F auid=0 -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S setxattr -F auid=0", line: "-a always,exit -F arch=b64 -S setxattr -F auid=0 -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S mount -F auid>=", line: "-a always,exit -F arch=b32 -S mount -F auid>=1000 -F auid!=unset -k privileged-mount" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S mount -F auid>=", line: "-a always,exit -F arch=b64 -S mount -F auid>=1000 -F auid!=unset -k privileged-mount" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S init_module -F auid>=", line: "-a always,exit -F arch=b32 -S init_module -F auid>=1000 -F auid!=unset -k module-change" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S init_module -F auid>=", line: "-a always,exit -F arch=b64 -S init_module -F auid>=1000 -F auid!=unset -k module-change" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S rename -F auid>=", line: "-a always,exit -F arch=b32 -S rename -F auid>=1000 -F auid!=unset -k delete" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S rename -F auid>=", line: "-a always,exit -F arch=b64 -S rename -F auid>=1000 -F auid!=unset -k delete" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S renameat -F auid>=", line: "-a always,exit -F arch=b32 -S renameat -F auid>=1000 -F auid!=unset -k delete" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S renameat -F auid>=", line: "-a always,exit -F arch=b64 -S renameat -F auid>=1000 -F auid!=unset -k delete" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S rmdir -F auid>=", line: "-a always,exit -F arch=b32 -S rmdir -F auid>=1000 -F auid!=unset -k delete" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S rmdir -F auid>=", line: "-a always,exit -F arch=b64 -S rmdir -F auid>=1000 -F auid!=unset -k delete" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S unlink -F auid>=", line: "-a always,exit -F arch=b32 -S unlink -F auid>=1000 -F auid!=unset -k delete" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S unlink -F auid>=", line: "-a always,exit -F arch=b64 -S unlink -F auid>=1000 -F auid!=unset -k delete" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S unlinkat -F auid>=", line: "-a always,exit -F arch=b32 -S unlinkat -F auid>=1000 -F auid!=unset -k delete" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S unlinkat -F auid>=", line: "-a always,exit -F arch=b64 -S unlinkat -F auid>=1000 -F auid!=unset -k delete" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S finit_module -F auid>=", line: "-a always,exit -F arch=b32 -S finit_module -F auid>=1000 -F auid!=unset -k module-change" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S finit_module -F auid>=", line: "-a always,exit -F arch=b64 -S finit_module -F auid>=1000 -F auid!=unset -k module-change" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S delete_module -F auid>=", line: "-a always,exit -F arch=b32 -S delete_module -F auid>=1000 -F auid!=unset -k module-change" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S delete_module -F auid>=", line: "-a always,exit -F arch=b64 -S delete_module -F auid>=1000 -F auid!=unset -k module-change" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S chown -F auid>=", line: "-a always,exit -F arch=b32 -S chown -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S chown -F auid>=", line: "-a always,exit -F arch=b64 -S chown -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S chmod -F auid>=", line: "-a always,exit -F arch=b32 -S chmod -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S chmod -F auid>=", line: "-a always,exit -F arch=b64 -S chmod -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S lchown -F auid>=", line: "-a always,exit -F arch=b32 -S lchown -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S lchown -F auid>=", line: "-a always,exit -F arch=b64 -S lchown -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S fchownat -F auid>=", line: "-a always,exit -F arch=b32 -S fchownat -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S fchownat -F auid>=", line: "-a always,exit -F arch=b64 -S fchownat -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S fchown -F auid>=", line: "-a always,exit -F arch=b32 -S fchown -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S fchown -F auid>=", line: "-a always,exit -F arch=b64 -S fchown -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S fchmodat -F auid>=", line: "-a always,exit -F arch=b32 -S fchmodat -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S fchmodat -F auid>=", line: "-a always,exit -F arch=b64 -S fchmodat -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S fchmod -F auid>=", line: "-a always,exit -F arch=b32 -S fchmod -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S fchmod -F auid>=", line: "-a always,exit -F arch=b64 -S fchmod -F auid>=1000 -F auid!=unset -k perm_mod" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S truncate .*exit=-EPERM ", line: "-a always,exit -F arch=b32 -S truncate -F exit=-EPERM -F auid>=1000 -F auid!=unset -k perm_access" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S truncate .*exit=-EPERM ", line: "-a always,exit -F arch=b64 -S truncate -F exit=-EPERM -F auid>=1000 -F auid!=unset -k perm_access" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S truncate .*exit=-EACCES ", line: "-a always,exit -F arch=b32 -S truncate -F exit=-EACCES -F auid>=1000 -F auid!=unset -k perm_access" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S truncate .*exit=-EACCES ", line: "-a always,exit -F arch=b64 -S truncate -F exit=-EACCES -F auid>=1000 -F auid!=unset -k perm_access" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S openat .*exit=-EPERM ", line: "-a always,exit -F arch=b32 -S openat -F exit=-EPERM -F auid>=1000 -F auid!=unset -k perm_access" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S openat .*exit=-EPERM ", line: "-a always,exit -F arch=b64 -S openat -F exit=-EPERM -F auid>=1000 -F auid!=unset -k perm_access" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S openat .*exit=-EACCES ", line: "-a always,exit -F arch=b32 -S openat -F exit=-EACCES -F auid>=1000 -F auid!=unset -k perm_access" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S openat .*exit=-EACCES ", line: "-a always,exit -F arch=b64 -S openat -F exit=-EACCES -F auid>=1000 -F auid!=unset -k perm_access" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S open .*exit=-EPERM ", line: "-a always,exit -F arch=b32 -S open -F exit=-EPERM -F auid>=1000 -F auid!=unset -k perm_access" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S open .*exit=-EPERM ", line: "-a always,exit -F arch=b64 -S open -F exit=-EPERM -F auid>=1000 -F auid!=unset -k perm_access" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S open .*exit=-EACCES ", line: "-a always,exit -F arch=b32 -S open -F exit=-EACCES -F auid>=1000 -F auid!=unset -k perm_access" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S open .*exit=-EACCES ", line: "-a always,exit -F arch=b64 -S open -F exit=-EACCES -F auid>=1000 -F auid!=unset -k perm_access" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S open_by_handle_at .*exit=-EPERM ", line: "-a always,exit -F arch=b32 -S open_by_handle_at -F exit=-EPERM -F auid>=1000 -F auid!=unset -k perm_access" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S open_by_handle_at .*exit=-EPERM ", line: "-a always,exit -F arch=b64 -S open_by_handle_at -F exit=-EPERM -F auid>=1000 -F auid!=unset -k perm_access" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S open_by_handle_at .*exit=-EACCES ", line: "-a always,exit -F arch=b32 -S open_by_handle_at -F exit=-EACCES -F auid>=1000 -F auid!=unset -k perm_access" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S open_by_handle_at .*exit=-EACCES ", line: "-a always,exit -F arch=b64 -S open_by_handle_at -F exit=-EACCES -F auid>=1000 -F auid!=unset -k perm_access" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S ftruncate .*exit=-EPERM ", line: "-a always,exit -F arch=b32 -S ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=unset -k perm_access" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S ftruncate .*exit=-EPERM ", line: "-a always,exit -F arch=b64 -S ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=unset -k perm_access" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S ftruncate .*exit=-EACCES ", line: "-a always,exit -F arch=b32 -S ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=unset -k perm_access" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S ftruncate .*exit=-EACCES ", line: "-a always,exit -F arch=b64 -S ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=unset -k perm_access" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S creat .*exit=-EPERM ", line: "-a always,exit -F arch=b32 -S creat -F exit=-EPERM -F auid>=1000 -F auid!=unset -k perm_access" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S creat .*exit=-EPERM ", line: "-a always,exit -F arch=b64 -S creat -F exit=-EPERM -F auid>=1000 -F auid!=unset -k perm_access" }
+  - { regexp: "^-a always,exit.*arch=b32.*-S creat .*exit=-EACCES ", line: "-a always,exit -F arch=b32 -S creat -F exit=-EACCES -F auid>=1000 -F auid!=unset -k perm_access" }
+  - { regexp: "^-a always,exit.*arch=b64.*-S creat .*exit=-EACCES ", line: "-a always,exit -F arch=b64 -S creat -F exit=-EACCES -F auid>=1000 -F auid!=unset -k perm_access" }
+  when:
+  - configure_audit_rules  | bool
+  notify:
+    - Restart auditd
+
+- name: Find faillock log dir and set audit rule
+  block:
+  - name: Find faillock log dir from faillock.conf
+    shell: grep "^dir =" /etc/security/faillock.conf | awk '{print $3}'
+    changed_when: false
+    register: faillock_log_file_dir_output
+  - name: Set Fact of location of audit.log
+    set_fact:
+      faillock_log_dir: "{{ faillock_log_file_dir_output.stdout }}"
+  - name: Add audit rule for faillock log directory
+    lineinfile:
+      path: /etc/audit/rules.d/audit.rules
+      regexp: "^-w {{ faillock_log_dir }}"
+      line: "-w {{ faillock_log_dir }} -p wa -k logins"
+    notify:
+      - Restart auditd
+  when:
+  - configure_audit_rule_faillock_log_dir | bool
+
+- name: Add loginuid-immutable to audit rules
+  block:
+  - name: Insert loguid-immutable rule
+    lineinfile:
+      path: /etc/audit/rules.d/audit.rules
+      regexp: "--loginuid-immutable"
+      line: "--loginuid-immutable"
+      insertafter: "-f"
+    notify:
+      - Restart auditd
+  - name: Insert Comment
+    lineinfile:
+      path: /etc/audit/rules.d/audit.rules
+      line: "## Make Login UID immutable once it is set (may break containers)##"
+      insertbefore: "--loginuid-immutable"
+  when:
+  - configure_loginuid_immutable_audit_rule | bool
+
+- name: Add immutable to audit rules configuration
+  block:
+  - name: Insert immutable rule
+    lineinfile:
+      path: /etc/audit/rules.d/audit.rules
+      regexp: "-e "
+      line: "-e {{ var_immutable_bit }}"
+      insertafter: "--loginuid"
+    notify:
+      - Restart auditd
+  - name: Insert Comment
+    lineinfile:
+      path: /etc/audit/rules.d/audit.rules
+      line: "## Make the configuration immutable -- reboot is required to change audit rules ##"
+      insertbefore: "-e {{ var_immutable_bit }}"
+  when:
+  - configure_immutable_bit_audit_rule | bool
+    
+- name: Get list of .rule files in /etc/audit/rules.d/ and set permissions
+  block:
+  - name: Find all .rule files in /etc/audit/rules.d/
+    find:
+      paths: /etc/audit/rules.d/
+      patterns: "*.rules"
+    register: audit_rule_files
+  - name: Remove all other files except for audit.rules in /etc/audit/rules.d/
+    file:
+      path: "{{ item.path }}"
+      owner: root
+      group: root
+      mode: '0600'
+    with_items: "{{ audit_rule_files.files }}"
+  when:
+  - configure_auditd_rule_files_permissions | bool  

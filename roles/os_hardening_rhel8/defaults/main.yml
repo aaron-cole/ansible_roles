@@ -1,5 +1,21 @@
 ##Defaults
 
+## Crypto Policies
+harden_crypto_policies: false
+package_fipscheck_install: true
+package_gnutls_install: true
+enable_fips_mode: true
+configure_openssl_crypto_policy: true
+configure_gnutls_library: true
+gnutls_crypto_line: "SYSTEM=NONE:+MAC-ALL:-MD5:+GROUP-ALL:-GROUP-X25519:-GROUP-X448:+SIGN-ALL:-SIGN-RSA-MD5:-SIGN-RSA-SHA1:-SIGN-DSA-SHA1:-SIGN-ECDSA-SHA1:-SIGN-DSA-SHA224:-SIGN-DSA-SHA256:-SIGN-DSA-SHA384:-SIGN-DSA-SHA512:-SIGN-EDDSA-ED25519:-SIGN-EDDSA-ED448:+CIPHER-ALL:-CHACHA20-POLY1305:-CAMELLIA-256-GCM:-CAMELLIA-128-GCM:-CAMELLIA-256-CBC:-CAMELLIA-128-CBC:-3DES-CBC:-ARCFOUR-128:+ECDHE-RSA:+ECDHE-ECDSA:+DHE-RSA:+VERS-ALL:-VERS-DTLS0.9:-VERS-SSL3.0:-VERS-TLS1.0:-VERS-TLS1.1:-VERS-DTLS1.0:+COMP-NULL:%PROFILE_MEDIUM"
+configure_sshd_system_wide_policy: true
+configure_opensshserver_crypto_policy: true
+opensshserver_crypto_policy: "CRYPTO_POLICY='-oCiphers=aes256-ctr,aes192-ctr,aes128-ctr -oMACs=hmac-sha2-512,hmac-sha2-256 -oGSSAPIKeyExchange=no -oKexAlgorithms=ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group14-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512 -oHostKeyAlgorithms=ecdsa-sha2-nistp256,ecdsa-sha2-nistp256-cert-v01@openssh.com,ecdsa-sha2-nistp384,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp521,ecdsa-sha2-nistp521-cert-v01@openssh.com,rsa-sha2-256,rsa-sha2-256-cert-v01@openssh.com,rsa-sha2-512,rsa-sha2-512-cert-v01@openssh.com -oPubkeyAcceptedKeyTypes=ecdsa-sha2-nistp256,ecdsa-sha2-nistp256-cert-v01@openssh.com,ecdsa-sha2-nistp384,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp521,ecdsa-sha2-nistp521-cert-v01@openssh.com,rsa-sha2-256,rsa-sha2-256-cert-v01@openssh.com,rsa-sha2-512,rsa-sha2-512-cert-v01@openssh.com -oCASignatureAlgorithms=ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,rsa-sha2-256,rsa-sha2-512'"
+configure_openssh_ciphers: true
+openssh_ciphers: "Ciphers aes256-ctr,aes192-ctr,aes128-ctr"
+configure_openssh_macs: true
+openssh_macs: "MACs hmac-sha2-512,hmac-sha2-256"
+
 ##TMUX Settings
 harden_tmux: false
 package_tmux_installed: true
@@ -154,6 +170,7 @@ harden_postfix: false
 package_postfix_installed: true
 service_postfix_enabled: true
 configure_postfix_smtpd_client_restrictions: true
+configure_postmaster_etc_aliases: true
 
 ##systemd settings
 harden_systemd: false
@@ -289,9 +306,110 @@ harden_disabled_services: false
 service_autofs_disabled: true
 
 ##Firewalld
-harden_firewalld: true
+harden_firewalld: false
 package_firewalld_install: true
 package_nftables_install: true
 service_firewalld_enabled: true
 configure_firewalld_backend: true
 firewalld_active_zone_drop: true
+
+##CHRONY
+harden_chrony: true
+package_chrony_installed: true
+disable_chrony_as_server: true
+disable_network_mangement_chrony: true
+configure_chrony_max_poll: true
+chrony_max_poll: "16"
+
+##/etc/default/useradd
+harden_etc_default_useradd: false
+configure_etc_default_useradd: true
+value_useradd_inactive: "35"
+
+##AIDE
+harden_aide: false
+package_aide_install: true
+package_mailx_install: true
+configure_aide_cronjob: true
+aide_email_address: "root"
+configure_aide_verify_audit_tools: true
+configure_aide_content_item: true
+create_aide_database: true
+
+##Rsyslog
+harden_rsyslog: false
+package_rsyslog_install: true
+service_rsyslog_enabled: true
+configure_rsyslog_log_all_cron_facilities: true
+configure_rsyslog_log_all_auth_facilities: true
+configure_rsyslog_remote_offloading: true
+rsyslog_remote_type: "@@"
+rsyslog_remote_server_port: "0.0.0.0:514"
+
+##SSSD
+harden_sssd: false
+package_sssd_installation: true
+package_sssd_tools_installation: true
+service_sssd_enabled: true
+configure_sssd_offline_cache_credentials_expiration: true
+configure_sssd_certificate_verification: true
+
+##Fapolicyd
+harden_fapolicyd: false
+package_fapolicyd_installation: true
+service_fapolicyd_enabled: true
+configure_fapolicyd_mounts: true
+configure_fapolicyd_permissive: true
+fapolicyd_permissive_mode: "1"
+configure_fapolicyd_deny_all_rule: true
+
+##PAM
+harden_pam: false
+configure_pam_postlogin_lastlog: true
+configure_pam_rounds_pam_unix: true
+configure_pam_sha512_pam_unix: true
+configure_pam_nullok_pam_unix: true
+configure_pam_pwhistory: true
+configure_pam_pwquality: true
+configure_pam_faillock_preauth: true
+configure_pam_faillock_authfail: true
+configure_pam_faillock_account: true
+configure_etc_security_faillock_conf: true
+faillock_dir_records: "/var/log/faillock"
+
+##Audit
+harden_auditing: false
+package_audit_install: true
+service_auditd_enabled: true
+grub2_audit: true
+grub2_audit_backlog_limit: true
+configure_etc_audit_auditd_conf_permissions: true
+configure_auditd_conf_action_mail_acct: true
+var_action_mail_acct: "root"
+configure_auditd_conf_disk_error_action: true
+var_disk_error_action: "SYSLOG"
+configure_auditd_conf_max_log_file_action: true
+var_max_log_file_action: "ROTATE"
+configure_auditd_conf_disk_full_action: true
+var_disk_full_action: "SYSLOG"
+configure_auditd_conf_local_events: true
+var_local_events: "yes"
+configure_auditd_conf_name_format: true
+var_name_format: "hostname"
+configure_auditd_conf_log_format: true
+var_log_format: "ENRICHED"
+configure_auditd_conf_overflow_action: true
+var_overflow_action: "SYSLOG"
+configure_auditd_conf_space_left: true
+var_space_left: "25%"
+configure_auditd_conf_space_left_action: true
+var_space_left_action: "EMAIL"
+configure_permissions_audit_log_file: true
+configure_audit_rules: true
+configure_audit_rule_faillock_log_dir: true
+configure_loginuid_immutable_audit_rule: true
+configure_immutable_bit_audit_rule: true
+var_immutable_bit: "2"
+configure_auditd_rule_files_permissions: true
+
+##find a way to add grub items to etc/default/grub

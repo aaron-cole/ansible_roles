@@ -1,0 +1,57 @@
+# Handlers for os hardening
+- name: Restart usbguard
+  service:
+    state: restarted
+    name: usbguard
+
+- name: Restart sshd service
+  service:
+    state: restarted
+    name: sshd
+
+- name: Restart postfix service
+  service:
+    state: restarted
+    name: postfix    
+
+- name: new aliases
+  command: /usr/bin/newaliases
+  
+- name: Restart firewalld service
+  service:
+    state: restarted
+    name: firewalld   
+
+- name: Reload firewalld service
+  service:
+    state: reloaded
+    name: firewalld
+
+- name: Reload Firewalld configuration
+  command: /usr/bin/firewalld-cmd --reload
+    
+- name: Restart chrony service
+  service:
+    state: restarted
+    name: chronyd
+
+- name: Restart rsyslog
+  service:
+    state: restarted
+    name: rsyslog
+
+- name: Restart sssd
+  service:
+    state: restarted
+    name: sssd
+
+- name: Restart fapolicyd
+  service:
+    state: restarted
+    name: fapolicyd
+
+- name: Restart auditd
+  command: service auditd restart
+  args:
+    warn: false
+    

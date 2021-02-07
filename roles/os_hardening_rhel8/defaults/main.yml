@@ -234,9 +234,17 @@ mount_option_boot_efi_nodev: true
 ##Kernel Options
 harden_kernel_options: false
 grub2_pti_argument: true
+var_pti_kernel_value: "on"
+var_pti_kernel_option: pti
 grub2_vsyscall_argument: true
+var_vsyscall_kernel_value: "none"
+var_vsyscall_kernel_option: vsyscall
 grub2_slub_debug_argument: true
+var_slub_kernel_value: "P"
+var_slub_kernel_option: slub_debug
 grub2_page_poison_argument: true
+var_page_poison_kernel_value: 1
+var_page_poison_kernel_option: page_poison
 
 ##UMASK
 harden_umask: false
@@ -319,7 +327,8 @@ package_chrony_installed: true
 disable_chrony_as_server: true
 disable_network_mangement_chrony: true
 configure_chrony_max_poll: true
-chrony_max_poll: "16"
+var_chrony_option: maxpoll
+var_chrony_value: 16
 
 ##/etc/default/useradd
 harden_etc_default_useradd: false
@@ -382,7 +391,11 @@ harden_auditing: false
 package_audit_install: true
 service_auditd_enabled: true
 grub2_audit: true
+var_audit_kernel_value: 1
+var_audit_kernel_option: audit
 grub2_audit_backlog_limit: true
+var_audit_backlog_kernel_value: 8192
+var_audit_backlog_kernel_option: audit_backlog_limit
 configure_etc_audit_auditd_conf_permissions: true
 configure_auditd_conf_action_mail_acct: true
 var_action_mail_acct: "root"
@@ -412,4 +425,3 @@ configure_immutable_bit_audit_rule: true
 var_immutable_bit: "2"
 configure_auditd_rule_files_permissions: true
 
-##find a way to add grub items to etc/default/grub

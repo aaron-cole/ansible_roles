@@ -1,65 +1,85 @@
 ## Kernel Options
 
-- name: get current kernel parameters
-  command: /usr/bin/grub2-editenv - list
-  register: kernelopts
-  changed_when: false
+- name: Update pti kernel parameter
+  block:
+  - name: get current kernel parameters
+    command: /usr/bin/grub2-editenv - list
+    register: kernelopts
+    changed_when: false
+  - name: Update the bootloader menu
+    command: /usr/bin/grub2-editenv - set "{{ item }} pti=on"
+    with_items: '{{ kernelopts.stdout_lines | select(''match'', ''^kernelopts.*'') | list }}'
+    when:
+    - kernelopts.stdout_lines is defined
+    - kernelopts.stdout_lines | length > 0
+    - kernelopts.stdout | regex_search('^kernelopts=(?:.*\s)?pti=on(?:\s.*)?$', multiline=True) is none
+  - name: Update /etc/default/grub
+    replace:
+      path: /etc/default/grub
+      regexp: '^(GRUB_CMDLINE_LINUX=(?:(?![" ]{{ var_pti_kernel_option | regex_escape }}=).)*)(?:[" ]{{ var_pti_kernel_option | regex_escape }}=\S+)?(.*")$'          
+      replace: '\1 {{ var_pti_kernel_option }}={{ var_pti_kernel_value }}\2'
   when:
   - grub2_pti_argument | bool
 
-- name: Update the bootloader menu
-  command: /usr/bin/grub2-editenv - set "{{ item }} pti=on"
-  with_items: '{{ kernelopts.stdout_lines | select(''match'', ''^kernelopts.*'') | list }}'
-  when:
-  - kernelopts.stdout_lines is defined
-  - kernelopts.stdout_lines | length > 0
-  - kernelopts.stdout | regex_search('^kernelopts=(?:.*\s)?pti=on(?:\s.*)?$', multiline=True) is none
-  - grub2_pti_argument | bool
-
-- name: get current kernel parameters
-  command: /usr/bin/grub2-editenv - list
-  register: kernelopts
-  changed_when: false
+- name: Update vsyscall kernel parameter
+  block:
+  - name: get current kernel parameters
+    command: /usr/bin/grub2-editenv - list
+    register: kernelopts
+    changed_when: false
+  - name: Update the bootloader menu
+    command: /usr/bin/grub2-editenv - set "{{ item }} vsyscall=none"
+    with_items: '{{ kernelopts.stdout_lines | select(''match'', ''^kernelopts.*'') | list }}'
+    when:
+    - kernelopts.stdout_lines is defined
+    - kernelopts.stdout_lines | length > 0
+    - kernelopts.stdout | regex_search('^kernelopts=(?:.*\s)?vsyscall=none(?:\s.*)?$', multiline=True) is none
+  - name: Update /etc/default/grub
+    replace:
+      path: /etc/default/grub
+      regexp: '^(GRUB_CMDLINE_LINUX=(?:(?![" ]{{ var_vsyscall_kernel_option | regex_escape }}=).)*)(?:[" ]{{ var_vsyscall_kernel_option | regex_escape }}=\S+)?(.*")$'          
+      replace: '\1 {{ var_vsyscall_kernel_option }}={{ var_vsyscall_kernel_value }}\2'  
   when:
   - grub2_vsyscall_argument | bool
 
-- name: Update the bootloader menu
-  command: /usr/bin/grub2-editenv - set "{{ item }} vsyscall=none"
-  with_items: '{{ kernelopts.stdout_lines | select(''match'', ''^kernelopts.*'') | list }}'
-  when:
-  - kernelopts.stdout_lines is defined
-  - kernelopts.stdout_lines | length > 0
-  - kernelopts.stdout | regex_search('^kernelopts=(?:.*\s)?vsyscall=none(?:\s.*)?$', multiline=True) is none
-  - grub2_vsyscall_argument | bool
-
-- name: get current kernel parameters
-  command: /usr/bin/grub2-editenv - list
-  register: kernelopts
-  changed_when: false
+- name: Update slub_debug kernel parameter
+  block:
+  - name: get current kernel parameters
+    command: /usr/bin/grub2-editenv - list
+    register: kernelopts
+    changed_when: false
+  - name: Update the bootloader menu
+    command: /usr/bin/grub2-editenv - set "{{ item }} slub_debug=P"
+    with_items: '{{ kernelopts.stdout_lines | select(''match'', ''^kernelopts.*'') | list }}'
+    when:
+    - kernelopts.stdout_lines is defined
+    - kernelopts.stdout_lines | length > 0
+    - kernelopts.stdout | regex_search('^kernelopts=(?:.*\s)?slub_debug=P(?:\s.*)?$', multiline=True) is none
+  - name: Update /etc/default/grub
+    replace:
+      path: /etc/default/grub
+      regexp: '^(GRUB_CMDLINE_LINUX=(?:(?![" ]{{ var_slub_kernel_option | regex_escape }}=).)*)(?:[" ]{{ var_slub_kernel_option | regex_escape }}=\S+)?(.*")$'          
+      replace: '\1 {{ var_slub_kernel_option }}={{ var_slub_kernel_value }}\2'    
   when:
   - grub2_slub_debug_argument | bool
 
-- name: Update the bootloader menu
-  command: /usr/bin/grub2-editenv - set "{{ item }} slub_debug=P"
-  with_items: '{{ kernelopts.stdout_lines | select(''match'', ''^kernelopts.*'') | list }}'
+- name: Update page_poison kernel parameter
+  block:
+  - name: get current kernel parameters
+    command: /usr/bin/grub2-editenv - list
+    register: kernelopts
+    changed_when: false
+  - name: Update the bootloader menu
+    command: /usr/bin/grub2-editenv - set "{{ item }} page_poison=1"
+    with_items: '{{ kernelopts.stdout_lines | select(''match'', ''^kernelopts.*'') | list }}'
+    when:
+    - kernelopts.stdout_lines is defined
+    - kernelopts.stdout_lines | length > 0
+    - kernelopts.stdout | regex_search('^kernelopts=(?:.*\s)?page_poison=1(?:\s.*)?$', multiline=True) is none
+  - name: Update /etc/default/grub
+    replace:
+      path: /etc/default/grub
+      regexp: '^(GRUB_CMDLINE_LINUX=(?:(?![" ]{{ var_page_poison_kernel_option | regex_escape }}=).)*)(?:[" ]{{ var_page_poison_kernel_option | regex_escape }}=\S+)?(.*")$'          
+      replace: '\1 {{ var_page_poison_kernel_option }}={{ var_page_poison_kernel_value }}\2'   
   when:
-  - kernelopts.stdout_lines is defined
-  - kernelopts.stdout_lines | length > 0
-  - kernelopts.stdout | regex_search('^kernelopts=(?:.*\s)?slub_debug=P(?:\s.*)?$', multiline=True) is none
-  - grub2_slub_debug_argument | bool
-
-- name: get current kernel parameters
-  command: /usr/bin/grub2-editenv - list
-  register: kernelopts
-  changed_when: false
-  when:
-  - grub2_page_poison_argument | bool
-
-- name: Update the bootloader menu
-  command: /usr/bin/grub2-editenv - set "{{ item }} page_poison=1"
-  with_items: '{{ kernelopts.stdout_lines | select(''match'', ''^kernelopts.*'') | list }}'
-  when:
-  - kernelopts.stdout_lines is defined
-  - kernelopts.stdout_lines | length > 0
-  - kernelopts.stdout | regex_search('^kernelopts=(?:.*\s)?page_poison=1(?:\s.*)?$', multiline=True) is none
   - grub2_page_poison_argument | bool

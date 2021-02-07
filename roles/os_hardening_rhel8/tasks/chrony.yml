@@ -43,10 +43,14 @@
       path: /etc/chrony.conf
       regexp: '^(server (?:(?![ ]{{ var_chrony_option | regex_escape }} ).)*)(?:[ ]{{ var_chrony_option | regex_escape }} \S+)?(.*)$'          
       replace: '\1 {{ var_chrony_option }} {{ var_chrony_value }}\2'
+    notify:
+    - Restart chrony service
   - name: Ensure on Pool Lines
     replace:
       path: /etc/chrony.conf
       regexp: '^(pool (?:(?![ ]{{ var_chrony_option | regex_escape }} ).)*)(?:[ ]{{ var_chrony_option | regex_escape }} \S+)?(.*)$'          
       replace: '\1 {{ var_chrony_option }} {{ var_chrony_value }}\2'
+    notify:
+    - Restart chrony service
   when:
   - configure_chrony_max_poll | bool

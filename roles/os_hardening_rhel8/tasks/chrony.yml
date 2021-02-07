@@ -35,31 +35,18 @@
   notify:
   - Restart chrony service
 
-- name: Get server lines from chrony that don't have maxpoll in them
-  shell: egrep "^server |^pool " /etc/chrony.conf | grep -v "maxpoll "
-  register: etc_chrony_source_lines
-  changed_when: false
-  ignore_errors: true
-  when:
-  - configure_chrony_max_poll | bool
 
-- name: Set chrony line facts
-  set_fact:
-    chrony_source_lines: "{{ etc_chrony_source_lines.stdout.split('\n') }}"
+- name: Set maxpoll in /etc/chrony.conf
+  block:
+  - name: Ensure on Server Lines
+    replace:
+      path: /etc/chrony.conf
+      regexp: '^(server (?:(?![ ]{{ var_chrony_option | regex_escape }} ).)*)(?:[ ]{{ var_chrony_option | regex_escape }} \S+)?(.*)$'          
+      replace: '\1 {{ var_chrony_option }} {{ var_chrony_value }}\2'
+  - name: Ensure on Pool Lines
+    replace:
+      path: /etc/chrony.conf
+      regexp: '^(pool (?:(?![ ]{{ var_chrony_option | regex_escape }} ).)*)(?:[ ]{{ var_chrony_option | regex_escape }} \S+)?(.*)$'          
+      replace: '\1 {{ var_chrony_option }} {{ var_chrony_value }}\2'
   when:
   - configure_chrony_max_poll | bool
-  - etc_chrony_source_lines.rc == 0
-  
-- name: Add the maxpoll option because it's not present
-  lineinfile:
-    path: /etc/chrony.conf
-    create: no
-    regexp: "{{ item }}"
-    line: "{{ item }} maxpoll {{ chrony_max_poll }}"
-    state: present
-  with_items: "{{ chrony_source_lines }}"
-  when:
-  - configure_chrony_max_poll | bool
-  - etc_chrony_source_lines.rc == 0
-  notify:
-  - Restart chrony service

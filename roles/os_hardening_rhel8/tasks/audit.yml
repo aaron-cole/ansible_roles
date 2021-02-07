@@ -22,7 +22,7 @@
   when:
   - service_auditd_enabled | bool
 
-- name: Audit grub parameter
+- name: Audit grub parameter 
   block:
   - name: Get kernel options
     command: /usr/bin/grub2-editenv - list
@@ -34,7 +34,12 @@
     when:
     - kernelopts.stdout_lines is defined
     - kernelopts.stdout_lines | length > 0
-    - kernelopts.stdout | regex_search('^kernelopts=(?:.*\s)?audit=1(?:\s.*)?$', multiline=True) is none    
+    - kernelopts.stdout | regex_search('^kernelopts=(?:.*\s)?audit=1(?:\s.*)?$', multiline=True) is none
+  - name: Update /etc/default/grub
+    replace:
+      path: /etc/default/grub
+      regexp: '^(GRUB_CMDLINE_LINUX=(?:(?![" ]{{ var_audit_kernel_option | regex_escape }}=).)*)(?:[" ]{{ var_audit_kernel_option | regex_escape }}=\S+)?(.*")$'          
+      replace: '\1 {{ var_audit_kernel_option }}={{ var_audit_kernel_value }}\2'    
   when:
   - grub2_audit | bool
   
@@ -51,6 +56,11 @@
     - kernelopts.stdout_lines is defined
     - kernelopts.stdout_lines | length > 0
     - kernelopts.stdout | regex_search('^kernelopts=(?:.*\s)?audit_backlog_limit=8192(?:\s.*)?$', multiline=True) is none    
+  - name: Update /etc/default/grub
+    replace:
+      path: /etc/default/grub
+      regexp: '^(GRUB_CMDLINE_LINUX=(?:(?![" ]{{ var_audit_backlog_kernel_option | regex_escape }}=).)*)(?:[" ]{{ var_audit_backlog_kernel_option | regex_escape }}=\S+)?(.*")$'          
+      replace: '\1 {{ var_audit_backlog_kernel_option }}={{ var_audit_backlog_kernel_value }}\2'
   when:
   - grub2_audit_backlog_limit | bool
 

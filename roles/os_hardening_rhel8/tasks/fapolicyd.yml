@@ -38,7 +38,7 @@
   - name: Re-Check to see if fapolicyd.mounts exists
     stat:
       path: /etc/fapolicyd/fapolicyd.mounts
-      register: facpolicyd_mounts_file
+    register: facpolicyd_mounts_file
   when:
   - not facpolicyd_mounts_file.stat.exists
   - configure_fapolicyd_mounts | bool

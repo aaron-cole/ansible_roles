@@ -8,4 +8,16 @@
   when: ( agent_reinstall == true ) or
         ( agent_install == true ) or
         ( agent_removal == true )
+
+# Agent GUID Tasks - we shouldn't have to go through 
+# all the install tasks if not necessary to get here
+- name: Import Agent GUID tasks if requested
+  ansible.builtin.import_tasks:
+    file: agent_guid.yml
+  when: ( agent_new_guid == true )
   
+# Agent Status Checks
+- name: Import Agent Status tasks if requested
+  ansible.builtin.import_tasks:
+    file: agent_status.yml
+  when: ( agent_status == true )

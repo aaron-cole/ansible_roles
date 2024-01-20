@@ -1,0 +1,28 @@
+---
+# Tasks for New Agent GUID
+
+- name: Stop MA service
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: stopped
+  loop:
+    - ma.service
+    - cma.service
+  ignore_errors: true
+
+- block:
+    - name: Check if /opt/McAfee/agent/bin/maconfig exists
+      ansible.builtin.stat: 
+        path: /opt/McAfee/agent/bin/maconfig
+        get_attributes: false
+        get_checksum: false
+        get_mime: false
+      register: maconfig_stat_result
+
+    - name: Use maconfig command to generate new GUID
+      ansible.builtin.shell: '/opt/McAfee/agent/bin/maconfig -enforce -noguid'
+      when: maconfig_stat_result.stat.exists
+      notify: Restart Agent Services
+
+- name: Flush handlers
+  meta: flush_handlers

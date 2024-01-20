@@ -1,0 +1,25 @@
+---
+# Agent Status Tasks
+
+- name: Check if /opt/McAfee/agent/bin/cmdagent exists
+  ansible.builtin.stat: 
+    path: /opt/McAfee/agent/bin/cmdagent
+    get_attributes: false
+    get_checksum: false
+    get_mime: false
+  register: cmdagent_stat_result
+
+- name: Collect Trellix Agent version.
+  ansible.builtin.shell: '/opt/McAfee/agent/bin/cmdagent -i | grep -e "^Version:" | cut -f 2 -d " "'
+  register: agent_version_check
+  when: cmdagent_stat_result.stat.exists
+
+- name: Get ePO server list from agent
+  shell: '/opt/McAfee/agent/bin/cmdagent -i | grep -e "^EpoServerList:" | cut -f 2 -d " "'
+  register: epo_server_ck
+  when: cmdagent_stat_result.stat.exists
+
+- name: Issue information line for possible report gathering (capture with tee -a <file>)
+  debug:
+    msg: INFO:{{inventory_hostname}} OS:{{ ansible_distribution }}{{ ansible_distribution_version }} AgentVersion:{{ agent_version_check.stdout }} ePO_Server:{{ epo_server_ck.stdout | default("unset") }}
+  ignore_errors: true

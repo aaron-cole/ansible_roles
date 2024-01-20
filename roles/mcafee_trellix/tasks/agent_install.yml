@@ -44,3 +44,8 @@
   
 - name: Flush handlers
   meta: flush_handlers
+
+- name: Wait 20 seconds before continuing
+  ansible.builtin.wait_for:
+    timeout: 20
+  delegate_to: localhost

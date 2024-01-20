@@ -1,0 +1,33 @@
+---
+# handlers file for mcafee_trellix
+- name: Remove install files
+  ansible.builtin.file:
+    path: "{{ agent_destination_dir }}"
+    state: absent
+
+- name: Restart Agent Services
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: restart
+  loop:
+    - ma.service
+    - cma.service
+  listen: "Agent Install"
+  
+- name: Agent Collect and Send Properties
+  ansible.builtin.shell: '/opt/McAfee/agent/bin/cmdagent -p'
+  listen: "Agent Install"
+
+- name: Update fapolicyd DB
+  ansible.builtin.shell: '/usr/sbin/fapolicyd-cli --update'
+  when: "'fapolicyd' in ansible_facts.packages"
+  listen: "Agent Install"
+
+- name: Stop Agent Services
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: stopped
+  loop:
+    - ma.service
+    - cma.service
+

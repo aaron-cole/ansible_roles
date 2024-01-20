@@ -1,0 +1,46 @@
+---
+# Tasks for installing Agent
+
+- name: Copy install files to server
+  ansible.builtin.copy:
+    src: "{{ agent_source_dir }}"
+    dest: "{{ agent_destination_dir }}"
+    group: sysadmins
+    mode: 0755
+  notify:
+    - Remove install files
+
+- name: Ensure that .profile exists for root IAW McAfee tech article KB94094
+  block:
+    - name: Check if ~root/.profile exists
+      ansible.builtin.stat: 
+        path: ~root/.profile
+        get_attributes: false
+        get_checksum: false
+        get_mime: false
+      register: root_profile_stat_result
+
+    - name: Create ~root.profile if it doesn't exist
+      ansible.builtin.file:
+        path: ~root/.profile
+        owner: root
+        group: root
+        mode: 0600
+        state: touch
+      when: root_profile_stat_result.stat.exists == false
+
+- name: Install Agent
+  ansible.builtin.command: sh ./install.sh -i
+  args:
+    chdir: "{{ agent_destination_dir }}"
+    creates: /opt/McAfee/agent/bin/cmdagent
+  notify:
+    - Agent Install
+
+- name: Wait 20 seconds before continuing
+  ansible.builtin.wait_for:
+    timeout: 20
+  delegate_to: localhost
+  
+- name: Flush handlers
+  meta: flush_handlers

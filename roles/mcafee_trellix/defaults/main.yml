@@ -1,0 +1,17 @@
+---
+# defaults file for mcafee_trellix
+
+# Agent Current versions
+agent_current_version: '5.7.9.139'
+
+# agent_status should be one of the following
+# "install | reinstall | remove | status or check | guid"
+# anything else will not do anything
+agent_status: "none"
+
+# Agent vars
+agent_install: false
+agent_reinstall: false
+agent_removal: false
+agent_source_dir: "/software/hbss/MA_{{ agent_current_version }}_LNX/"
+agent_destination_dir: "/tmp/MA_{{ agent_current_version }}_LNX"

@@ -1,0 +1,23 @@
+---
+# Tasks for Agent removal
+
+- name: Stop MA service
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: stopped
+  loop:
+    - ma.service
+    - cma.service
+  ignore_errors: true
+
+- name: Remove packages MFEcma, MFEma, MFErt, and MFEdx if installed
+  # Need to use shell module because yum mod does not support --nodeps
+  ansible.builtin.shell: "rpm -e --nodeps MFEma ; rpm -e --nodeps MFEcma ; rpm -e --nodeps MFErt ; rpm -e --nodeps MFEdx"
+  args:
+    warn: false
+  ignore_errors: true
+
+# gather package facts
+- name: Gather Package Facts
+  ansbile.builtin.package_facts:
+    manager: auto

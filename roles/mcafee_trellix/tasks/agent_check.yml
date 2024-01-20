@@ -1,0 +1,20 @@
+---
+# McAfee Agent Check Tasks
+
+# gather package facts
+- name: Gather Package Facts
+  ansbile.builtin.package_facts:
+    manager: auto
+
+- name: Check if /opt/McAfee/agent/bin/cmdagent exists
+  ansible.builtin.stat: 
+    path: /opt/McAfee/agent/bin/cmdagent
+    get_attributes: false
+    get_checksum: false
+    get_mime: false
+  register: cmdagent_stat_result
+
+- name: Collect initial Trellix Agent version.
+  ansible.builtin.shell: '/opt/McAfee/agent/bin/cmdagent -i | grep -e "^Version:" | cut -f 2 -d " "'
+  register: agent_version_check
+  when: cmdagent_stat_result.stat.exists

@@ -1,0 +1,59 @@
+---
+# Tasks for Agent
+
+# Check Version
+- name: Import Agent Check Tasks
+  ansible.builtin.import_tasks:
+    file: agent_check.yml
+
+- block:
+# Remove Agent
+    - name: Import Agent Removal Tasks
+      ansible.builtin.import_tasks:
+        file: mcafee_agent_removal.yml
+      when: ( agent_removal == true ) or
+            ("'MFEma' in ansible_facts.packages") or
+            ("'MFEcma' in ansible_facts.packages") or
+            ("'MFErt' in ansible_facts.packages") or
+            ("'MFEdx' in ansible_facts.packages")
+
+# Install Agent        
+    - name: Import Agent install tasks
+      ansible.builtin.import_tasks:
+        file: mcafee_agent_install.yml
+      when:
+        - "'MFEma' not in ansible_facts.packages"
+        - "'MFEcma' not in ansible_facts.packages"
+        - "'MFErt' not in ansible_facts.packages"
+        - "'MFEdx' not in ansible_facts.packages"
+        - agent_removal == false
+  
+  when: ( agent_removal == true ) or
+        ( cmdagent_stat_result.stat.exists == false ) or
+        ( agent_version_check.stdout != agent_current_version )
+  
+  always:
+    - name: Import Agent Check Tasks again 
+      ansible.builtin.import_tasks:
+        file: agent_check.yml
+
+# Second Time around
+- block:
+# Remove Agent 2nd time
+    - name: Import Agent Removal Tasks 2nd time
+      ansible.builtin.import_tasks:
+        file: mcafee_agent_removal.yml
+
+# Install Agent 2nd time
+    - name: Import Agent install tasks 2nd time
+      ansible.builtin.import_tasks:
+        file: mcafee_agent_install.yml
+
+  when: 
+    - ( agent_version_check.stdout != agent_current_version )
+    - ( agent_removal == false )
+  
+  always:
+    - name: Import Agent Check Tasks again 2nd time 
+      ansible.builtin.import_tasks:
+        file: agent_check.yml

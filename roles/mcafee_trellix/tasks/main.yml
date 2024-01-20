@@ -1,0 +1,11 @@
+---
+# tasks file for mcafee_trellix
+
+# Agent Goes first
+- name: Import Agent Tasks
+  ansible.builtin.import_tasks:
+    file: agent_tasks.yml
+  when: ( agent_reinstall == true ) or
+        ( agent_install == true ) or
+        ( agent_removal == true )
+  

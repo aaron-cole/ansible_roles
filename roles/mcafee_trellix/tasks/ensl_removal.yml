@@ -1,0 +1,46 @@
+---
+# ENSL Tasks for removal
+
+- name: Stop mfetpd service
+  ansible.builtin.service:
+    name: mfetpd
+    state: stopped
+  ignore_errors: true
+
+- name: Remove McAfeeTP and dependencies
+  ansible.builtin.yum:
+    name: 
+      - McAfeeTP
+      - McAfeeESPFileAccess
+      - McAfeeRt
+      - McAfeeESPAac
+      - McAfeeESP
+      - McAfeeENS-selinux
+    state: absent
+
+- ansible.builtin.selinux:
+    policy: targeted
+    state: permissive
+
+- name: Remove symbolic kernel links IAW Trellix KB96302
+# Source: https://kcm.trellix.com/corporate/index?page=content&id=KB96302
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - '/var/McAfee/ens/esp/aac/kernel/4.18.0-425.10.1.el8_7.x86_64'
+    - '/var/McAfee/ens/esp/fileaccess/kernel/4.18.0-425.10.1.el8_7.x86_64'
+
+- name: Poll ePO with cmdagent -p and wait for new ASC time
+  block:
+    - name: Get time of last ASC
+      ansible.builtin.shell: '/opt/McAfee/agent/bin/cmdagent -i | grep -e "^LastASCTime:" | cut -f 2 -d " "'
+      register: pre_poll_uninst
+    - name: Poll ePO to record uninstallation
+      ansible.builtin.shell: '/opt/McAfee/agent/bin/cmdagent -p'
+    - name: Wait for new ASC time
+      ansible.builtin.shell: '/opt/McAfee/agent/bin/cmdagent -i | grep -e "^LastASCTime:" | cut -f 2 -d " "'
+      register: wait_poll_uninst
+      until: wait_poll_uninst.stdout != pre_poll_uninst.stdout
+      retries: 18
+      delay: 10
